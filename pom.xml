@@ -21,5 +21,11 @@
       <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
+    <!-- Dependencia de RSyntaxTextArea -->
+    <dependency>
+      <groupId>com.fifesoft</groupId>
+      <artifactId>rsyntaxtextarea</artifactId>
+      <version>3.5.0</version>
+    </dependency>
   </dependencies>
 </project>
