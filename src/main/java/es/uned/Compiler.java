@@ -4,8 +4,6 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
 import javax.swing.*;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
@@ -37,19 +35,14 @@ class Compiler extends OutputStream implements Runnable {
                 if (javaFile == null)
                     System.out.println("Error: El nombre del archivo no coincide con el nombre de la clase");
 
-                // Escribir el archivo .java con codificación UTF-8
-                assert javaFile != null;
-                try (PrintWriter writer = new PrintWriter(Files.newBufferedWriter(javaFile.toPath(), StandardCharsets.UTF_8))) {
-                    writer.print(tfText);
-                }
-
                 // Compilar el archivo Java
-                ProcessBuilder pb = new ProcessBuilder("javac", "-encoding", "UTF-8", javaFile.getName());
+                assert javaFile != null;
+                ProcessBuilder pb = new ProcessBuilder("javac", javaFile.getName());
                 pb.directory(new File(".")); // Directorio de trabajo actual
                 pb.redirectErrorStream(true);
                 Process p = pb.start();
 
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8))) {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
                     String line;
                     while ((line = reader.readLine()) != null) {
                         System.out.println(line);

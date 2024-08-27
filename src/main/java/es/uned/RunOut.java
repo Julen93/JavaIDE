@@ -4,7 +4,6 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
 import javax.swing.*;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 
 // stdout
 class RunOut extends OutputStream implements Runnable {
@@ -18,7 +17,7 @@ class RunOut extends OutputStream implements Runnable {
 
     @Override
     public void run() {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 // Enviar la salida al terminal

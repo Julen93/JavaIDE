@@ -67,7 +67,7 @@ public class App implements ActionListener, ListSelectionListener, CaretListener
         terminal.setBackground(Color.BLACK);  // Fondo negro
         terminal.setForeground(Color.GREEN);  // Texto verde
         terminal.setCaretColor(Color.WHITE);  // Color del cursor
-        terminal.setEditable(false);  // Deshabilitar edición directa
+        //terminal.setEditable(false);  // Deshabilitar edición directa
 
         // Configurar el caret (cursor) como bloque, si es posible
         terminal.getCaret().setVisible(true);
@@ -86,8 +86,14 @@ public class App implements ActionListener, ListSelectionListener, CaretListener
         // Desactivar opciones contextuales que no se usarán en una terminal
         terminal.setPopupMenu(null);
 
+        // Crear un JScrollPane (usando RTextScrollPane) para la terminal
+        RTextScrollPane terminalScrollPane = new RTextScrollPane(terminal);
+
+        // Desactivar el marcador de línea en la terminal
+        terminalScrollPane.setLineNumbersEnabled(false);
+
         // Crear JSplitPane
-        JSplitPane jSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, contentPane, terminal);
+        JSplitPane jSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, contentPane, terminalScrollPane);
         ok = new JButton("OK");
         ok.addActionListener(this);
 

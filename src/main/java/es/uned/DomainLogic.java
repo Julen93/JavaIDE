@@ -268,40 +268,56 @@ public class DomainLogic {
         editor.setFont(newFont);
         terminal.setFont(newFont);
     }
+
     public void run(JButton ok) {
-        try{
-            Compiler c=new Compiler(file, editor, terminal);
-            Thread t1=new Thread(c,"compile");
-            t1.start();
-            JLabel lab=new JLabel("Enter the name of class containing main() ");
-            run_f=new JDialog();
+        try {
+            //Compiler c=new Compiler(file, editor, terminal);
+            //Thread t1=new Thread(c,"compile");
+            //t1.start();
+            // Configurar la interfaz de usuario para ingresar el nombre de la clase
+            JLabel lab = new JLabel("Enter the name of class containing main() ");
+            run_f = new JDialog();
             run_f.setLayout(new BorderLayout());
-            run_class=new JTextField(15);
-            run_f.add(lab,BorderLayout.NORTH);
-            run_f.add(run_class,BorderLayout.CENTER);
-            run_f.add(ok,BorderLayout.SOUTH);
+            run_class = new JTextField(15);
+            run_f.add(lab, BorderLayout.NORTH);
+            run_f.add(run_class, BorderLayout.CENTER);
+            run_f.add(ok, BorderLayout.SOUTH);
             run_f.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
             run_f.pack();
             run_f.setVisible(true);
-        }catch(Exception e){System.out.println(e+" from run");}
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error in run method", e);
+        }
     }
-    public void ok () {
-        try{
-            String path_run=run_class.getText()+".java";
+
+    public void ok() {
+        try {
+            // Obtener el nombre de la clase desde el campo de texto
+            String className = run_class.getText();
+            if (className.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Class name cannot be empty.");
+                return;
+            }
+
+            // Configurar el comando para ejecutar el programa Java
             run_f.setVisible(false);
-            Process p=Runtime.getRuntime().exec("cmd /c "+"cd .&&javaw -Dfile.encoding=UTF-8 "+path_run);
-            RunOut runOut =new RunOut(terminal,p);
-            RunErr runErr =new RunErr(terminal,p);
-            RunIn runIn =new RunIn(terminal,p);
-            Thread tr=new Thread(runOut,"runA");
-            Thread tr1=new Thread(runErr,"runB");
-            Thread tr2=new Thread(runIn,"runC");
+            ProcessBuilder processBuilder = new ProcessBuilder("java", className);
+            Process p = processBuilder.start();
+
+            // Inicializar los manejadores de entrada y salida
+            RunOut runOut = new RunOut(terminal, p);
+            RunErr runErr = new RunErr(terminal, p);
+            RunIn runIn = new RunIn(terminal, p);
+
+            // Iniciar hilos para manejar la entrada, salida y errores
+            Thread tr = new Thread(runOut, "runA");
+            Thread tr1 = new Thread(runErr, "runB");
+            Thread tr2 = new Thread(runIn, "runC");
             tr.start();
             tr1.start();
             tr2.start();
-        }catch(Exception e){
-            // Registrar la excepción con un mensaje
-            logger.log(Level.SEVERE, "An error occurred", e);
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Error executing the Java process", e);
         }
     }
     public void caretUpdate (){
@@ -317,6 +333,7 @@ public class DomainLogic {
             logger.log(Level.SEVERE, "An error occurred", e);
         }
         terminal.setText("");
+        terminal.setForeground(Color.GREEN);
         Compiler c=new Compiler(file, editor, terminal);
         Thread t=new Thread(c,"compile");
         t.start();
