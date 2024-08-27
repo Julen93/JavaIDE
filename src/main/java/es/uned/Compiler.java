@@ -2,22 +2,32 @@ package es.uned;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
-import javax.swing.*;
-import java.io.*;
-import java.util.logging.Logger;
-import java.util.logging.Level;
 
-class Compiler extends OutputStream implements Runnable {
+import java.io.*;
+import javax.swing.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+
+// Clase Compiler: Contiene el compilador del IDE.
+public class Compiler extends OutputStream implements Runnable {
+
+
+    // Campos de la clase Compiler
     private final File file;
     private final RSyntaxTextArea editor, terminal;
     private static final Logger logger = Logger.getLogger(Compiler.class.getName());
 
-    Compiler(File file, RSyntaxTextArea editor, RSyntaxTextArea terminal) {
+
+    // Constructor de la clase Compiler
+    public Compiler(File file, RSyntaxTextArea editor, RSyntaxTextArea terminal) {
         this.file = file;
         this.editor = editor;
         this.terminal = terminal;
     }
 
+
+    // Métodos de la clase Compiler
     public void run() {
         try {
             PrintStream out = new PrintStream(this);
@@ -52,6 +62,7 @@ class Compiler extends OutputStream implements Runnable {
                 int exitCode = p.waitFor();
                 if (exitCode == 0) {
                     System.out.println("Compilation successful.\n");
+
                 } else {
                     System.out.println("Compilation failed.\n");
                 }

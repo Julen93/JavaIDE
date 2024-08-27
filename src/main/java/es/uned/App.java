@@ -1,105 +1,104 @@
 package es.uned;
 
+import org.fife.ui.rtextarea.CaretStyle;
+import org.fife.ui.rsyntaxtextarea.Theme;
+import org.fife.ui.rtextarea.RTextScrollPane;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
-import org.fife.ui.rsyntaxtextarea.Theme;
-import org.fife.ui.rtextarea.CaretStyle;
-import org.fife.ui.rtextarea.RTextScrollPane;
 
-import javax.swing.*;
-import javax.swing.event.CaretEvent;
-import javax.swing.event.CaretListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+
 import java.awt.*;
+import javax.swing.*;
 import java.awt.event.*;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 /**
- * Hello world!
+ * This is an Integrated Development Environment for the Java programming language.
  *
  */
+
+// Clase App: Contiene la interfaz principal del IDE.
 public class App implements ActionListener, ListSelectionListener, CaretListener, KeyListener {
+
+
+    // Campos de la clase App
+    JButton ok;
     JFrame jFrame;
+    JLabel status;
+    DomainLogic dl ;
     JPanel contentPane;
+    private int fromIndex;
+    private JTextField tif;
     RSyntaxTextArea editor, terminal;
     private static final Logger logger = Logger.getLogger(App.class.getName());
-    JLabel status;
-    JButton ok;
-    DomainLogic dl;
-    private JTextField tif;
-    private int fromIndex;
 
+
+    // Constructor de la clase App
     public App() {
+
+        // Aplicar Look and Feel para configurar la apariencia de la aplicación
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
             // Registrar la excepción con un mensaje
-            logger.log(Level.SEVERE, "An error occurred", e);
+            logger.log(Level.SEVERE, "Error: setLookAndFeel.", e);
         }
 
         // Crear JFrame
         jFrame = new JFrame("App");
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // Crear JPanel
-        contentPane = new JPanel(new BorderLayout());
-        contentPane.setPreferredSize(new Dimension(800, 500));
+        // Configurar editor de texto.
         editor = new RSyntaxTextArea(20, 60);
-        editor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
-        editor.setCodeFoldingEnabled(true);
         editor.addCaretListener(this);
         editor.addKeyListener(this);
+        editor.setCodeFoldingEnabled(true);
         editor.setHighlightCurrentLine(false);  // Deshabilita el resaltado de la línea actual
-        try {
+        editor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
+        editor.setEditable(true);
+        try { // Aplicar tema oscuro al editor.
             Theme theme = Theme.load(getClass().getResourceAsStream("/org/fife/ui/rsyntaxtextarea/themes/dark.xml"));
             theme.apply(editor);
         } catch (IOException e) {
-            //e.printStackTrace();
+            // Registrar la excepción con un mensaje
+            logger.log(Level.SEVERE, "Error: Aplicar tema oscuro.", e);
         }
 
+        // Configurar JPanel que va a contener el editor de texto.
+        contentPane = new JPanel(new BorderLayout());
+        contentPane.setPreferredSize(new Dimension(800, 500));
         contentPane.add(new RTextScrollPane(editor));
-        //Configurar terminal
+
+        // Configurar terminal
         terminal = new RSyntaxTextArea();
-        terminal.setFont(new Font("Monospaced", Font.PLAIN, 14));  // Fuente monospaced
-        terminal.setBackground(Color.BLACK);  // Fondo negro
-        terminal.setForeground(Color.GREEN);  // Texto verde
-        terminal.setCaretColor(Color.WHITE);  // Color del cursor
-        //terminal.setEditable(false);  // Deshabilitar edición directa
-
-        // Configurar el caret (cursor) como bloque, si es posible
+        terminal.setBackground(Color.BLACK);
+        terminal.setForeground(Color.GREEN);
+        terminal.setCaretColor(Color.WHITE);
+        terminal.setFont(new Font("Monospaced", Font.PLAIN, 14));
         terminal.getCaret().setVisible(true);
-        terminal.setCaretColor(Color.GREEN);  // Cambia el color del cursor a verde
-        terminal.getCaret().setBlinkRate(500); // Rate del parpadeo del cursor
-        terminal.setCaretStyle(RSyntaxTextArea.INSERT_MODE, CaretStyle.BLOCK_STYLE); // Cursor como bloque
-        terminal.setHighlightCurrentLine(false);  // Deshabilita el resaltado de la línea actual
-
-        // Autoscroll: Cada vez que se añade texto, hacer scroll hasta el final
-        terminal.append("\n");  // Añadir nueva línea si es necesario
-        terminal.setCaretPosition(terminal.getDocument().getLength());  // Posicionar el caret al final
-
-        // Desactivar envoltura de línea (opcional, depende de la terminal)
-        terminal.setLineWrap(false);
-
-        // Desactivar opciones contextuales que no se usarán en una terminal
+        terminal.setCaretColor(Color.GREEN);
+        terminal.getCaret().setBlinkRate(500);
+        terminal.setCaretStyle(RSyntaxTextArea.INSERT_MODE, CaretStyle.BLOCK_STYLE);
+        terminal.setHighlightCurrentLine(false);
+        terminal.append("\n");
+        terminal.setCaretPosition(terminal.getDocument().getLength());
         terminal.setPopupMenu(null);
 
         // Crear un JScrollPane (usando RTextScrollPane) para la terminal
         RTextScrollPane terminalScrollPane = new RTextScrollPane(terminal);
-
-        // Desactivar el marcador de línea en la terminal
         terminalScrollPane.setLineNumbersEnabled(false);
 
         // Crear JSplitPane
         JSplitPane jSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, contentPane, terminalScrollPane);
-        ok = new JButton("OK");
-        ok.addActionListener(this);
 
-        // Crear JMenuBar
+        // Configurar JMenuBar
         JMenuBar menuBar = new JMenuBar();
-
         String[] fileMenuItemName = {"New", "Open", "Save", "Save As", "Exit"};
         String[] editMenuItemName = {"Undo", "Redo", "Cut", "Copy", "Paste", "Delete", "Find", "Replace", "Go To", "Select All", "File Properties"};
         String[] fontMenuItemName = {"Increase Size", "Decrease Size"};
@@ -117,17 +116,12 @@ public class App implements ActionListener, ListSelectionListener, CaretListener
         menuBar.add(edit);
         menuBar.add(font);
         menuBar.add(tools);
-
-        editor.setEditable(true);
         JMenuItem[] fileMenuItem = new JMenuItem[fileMenuItemName.length];
         file.setMnemonic(KeyEvent.VK_F);
-
         JMenuItem[] editMenuItem = new JMenuItem[editMenuItemName.length];
         edit.setMnemonic(KeyEvent.VK_E);
-
         JMenuItem[] fontMenuItem = new JMenuItem[fontMenuItemName.length];
         font.setMnemonic(KeyEvent.VK_O);
-
         JMenuItem[] toolsMenuItem = new JMenuItem[toolsMenuItemName.length];
         tools.setMnemonic(KeyEvent.VK_T);
 
@@ -163,23 +157,32 @@ public class App implements ActionListener, ListSelectionListener, CaretListener
             tools.add(toolsMenuItem[i]);
         }
 
+        // Configurar marcador de líneas y columnas
+        status = new JLabel("Ln : 1    Col : 1");
+        status.setFont(new Font("Verdana", Font.PLAIN, 14));
+
+        // Inicializar DomainLogic
+        dl = new DomainLogic(jFrame, contentPane, editor, terminal, status);
+
+        // Crear botón de OK
+        ok = new JButton("OK");
+        ok.addActionListener(this);
+
+        // Configurar JFrame
         jFrame.setJMenuBar(menuBar);
         jSplitPane.setDividerLocation(0.75);
         jFrame.add(jSplitPane, BorderLayout.CENTER);
-        status = new JLabel("Ln : 1    Col : 1");
-        status.setFont(new Font("Verdana", Font.PLAIN, 14));
         jFrame.add(status, BorderLayout.SOUTH);
-        // Inicializar DomainLogic aquí
-        dl = new DomainLogic(jFrame, contentPane, editor, terminal, status);
-        dl.changeFontSize(editor.getFont().getSize() + 2);
         jFrame.pack();
         jFrame.setLocationRelativeTo(null);
         jFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);  // Maximizar el JFrame
         jFrame.setVisible(true);
     }
 
+
+    // Métodos de la clase App
     @Override
-    public void actionPerformed(ActionEvent event) {
+    public void actionPerformed(ActionEvent event) { // Método encargado de recibir y manejar los eventos de acción.
         if (event.getActionCommand().equals("New")) {
             jFrame.setVisible(false);
             new App();
@@ -200,9 +203,8 @@ public class App implements ActionListener, ListSelectionListener, CaretListener
             dl.cut();
         if (event.getActionCommand().equals("Copy"))
             dl.copy();
-        if (event.getActionCommand().equals("Paste")) {
+        if (event.getActionCommand().equals("Paste"))
             dl.paste();
-        }
         if (event.getActionCommand().equals("Delete"))
             dl.delete();
         if (event.getActionCommand().equals("Find")) {
@@ -261,25 +263,21 @@ public class App implements ActionListener, ListSelectionListener, CaretListener
     @Override
     public void keyTyped (KeyEvent event){}
     @Override
-    public void keyPressed (KeyEvent event) {
+    public void keyPressed (KeyEvent event) { // Método encargado de ejecutarse cuando una tecla es presionada.
         if (event.getKeyCode() == KeyEvent.VK_BACK_SPACE || event.getKeyCode() == KeyEvent.VK_DELETE)
             dl.keyPressed();
     }
     @Override
     public void keyReleased (KeyEvent event){}
     @Override
-    public void caretUpdate (CaretEvent event){dl.caretUpdate();}
+    public void caretUpdate (CaretEvent event){dl.caretUpdate();} // Método encargado de manejar eventos relacionados con el cursor.
     @Override
     public void valueChanged (ListSelectionEvent event) {}
 
-    public static void main (String...args){
-        // Obtener la instancia de Runtime
+    public static void main (String...args){ // Método principal de la clase.
         Runtime rt = Runtime.getRuntime();
-        // Crear una instancia de Shutdown (nuestro hook)
         Shutdown sd = new Shutdown();
-        // Registrar el hook de cierre para que se ejecute cuando el proceso esté cerrando
         rt.addShutdownHook(new Thread(sd));
-        // Ejecutar la aplicación principal (en este caso, una instancia de Note)
         new App();
     }
 }

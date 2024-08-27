@@ -2,24 +2,33 @@ package es.uned;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
+
 import javax.swing.*;
+import java.io.PrintWriter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 
-// stdin
-class RunIn implements Runnable, KeyListener {
-    private final StringBuilder input = new StringBuilder();  // Usar StringBuilder para mejorar el rendimiento
-    private final RSyntaxTextArea terminal;
-    private final Process process;
+
+// Clase RunIn: Contiene el stdin del proceso que ejecuta la JVM
+public class RunIn implements Runnable, KeyListener {
+
+
+    // Campos de la clase RunIn
     private PrintWriter pw;
+    private final Process process;
+    private final RSyntaxTextArea terminal;
+    private final StringBuilder input = new StringBuilder();  // Usar StringBuilder para mejorar el rendimiento
 
-    RunIn(RSyntaxTextArea terminal, Process process) {
-        this.terminal = terminal;
+
+    // Constructor de la clase RunIn
+    public RunIn(RSyntaxTextArea terminal, Process process) {
         this.process = process;
+        this.terminal = terminal;
     }
 
+
+    // Métodos de la clase RunIn
     @Override
     public void run() {
         try {

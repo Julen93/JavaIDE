@@ -2,19 +2,28 @@ package es.uned;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
-import javax.swing.*;
+
 import java.io.*;
+import javax.swing.*;
 
-// stdout
-class RunOut extends OutputStream implements Runnable {
-    private final RSyntaxTextArea terminal;
+
+// Clase RunOut: Contiene el stdout del proceso que ejecuta la JVM
+public class RunOut extends OutputStream implements Runnable {
+
+
+    // Campos de la clase RunOut
     private final Process process;
+    private final RSyntaxTextArea terminal;
 
-    RunOut(RSyntaxTextArea terminal, Process process) {
-        this.terminal = terminal;
+
+    // Constructor de la clase RunOut
+    public RunOut(RSyntaxTextArea terminal, Process process) {
         this.process = process;
+        this.terminal = terminal;
     }
 
+
+    // Métodos de la clase RunOut
     @Override
     public void run() {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {

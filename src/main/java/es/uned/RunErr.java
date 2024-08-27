@@ -2,19 +2,29 @@ package es.uned;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
-import javax.swing.*;
-import java.awt.*;
+
 import java.io.*;
+import java.awt.*;
+import javax.swing.*;
 
-class RunErr extends OutputStream implements Runnable {
-    private final RSyntaxTextArea terminal;
+
+// Clase RunErr: Contiene el stderr del proceso que ejecuta la JVM
+public class RunErr extends OutputStream implements Runnable {
+
+
+    // Campos de la clase RunErr
     private final Process process;
+    private final RSyntaxTextArea terminal;
 
-    RunErr(RSyntaxTextArea terminal, Process process) {
-        this.terminal = terminal;
+
+    // Constructor de la clase RunErr
+    public RunErr(RSyntaxTextArea terminal, Process process) {
         this.process = process;
+        this.terminal = terminal;
     }
 
+
+    // Métodos de la clase RunErr
     @Override
     public void run() {
         try {

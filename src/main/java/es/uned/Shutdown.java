@@ -4,9 +4,16 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-class Shutdown implements Runnable {
+
+// Clase Shutdown: Contiene el código que se va a ejecutar a modo de hook cuando la aplicación finalize.
+public class Shutdown implements Runnable {
+
+
+    // Campos de la clase Shutdown
     private static final Logger logger = Logger.getLogger(Shutdown.class.getName());
 
+
+    // Métodos de la clase Shutdown
     @Override
     public void run() {
         try {

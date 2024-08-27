@@ -1,45 +1,53 @@
 package es.uned;
 
-import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
-import org.fife.ui.rtextarea.SearchContext;
 import org.fife.ui.rtextarea.SearchEngine;
 import org.fife.ui.rtextarea.SearchResult;
+import org.fife.ui.rtextarea.SearchContext;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
-import javax.swing.*;
-import java.awt.*;
+
 import java.io.*;
+import java.awt.*;
+import javax.swing.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.LinkedList;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
+
+// Clase DomainLogic: Contiene las principales funcionalidades del IDE.
 public class DomainLogic {
 
+
+    // Campos de la clase DomainLogic
+    private int unf;
+    private File file;
+    private int flag=0;
+    private String path;
+    private JDialog run_f;
+    private int flagSave=0;
     private final JFrame jFrame;
+    private final JLabel status;
+    private JTextField run_class;
     private final JPanel contentPane;
     private final RSyntaxTextArea editor, terminal;
-    private final JLabel status;
-    private static final Logger logger = Logger.getLogger(DomainLogic.class.getName());
-    private int flag=0;
-    private int flagSave=0;
-    private int unf;
-
-    String path;
-    File file;
-    JDialog run_f;
-    JTextField run_class;
     private final LinkedList<String> undoStack = new LinkedList<>();
     private final LinkedList<String> redoStack = new LinkedList<>();
+    private static final Logger logger = Logger.getLogger(DomainLogic.class.getName());
 
+
+    // Constructor de la clase DomainLogic
     public DomainLogic(JFrame jFrame, JPanel contentPane, RSyntaxTextArea rSTextArea, RSyntaxTextArea terminal, JLabel status) {
         this.jFrame = jFrame;
-        this.contentPane = contentPane;
+        this.status = status;
         this.editor = rSTextArea;
         this.terminal = terminal;
-        this.status = status;
+        this.contentPane = contentPane;
     }
 
+
+    // Métodos de la clase DomainLogic
     public void open() {
         JFileChooser jfc = new JFileChooser();
         try {
