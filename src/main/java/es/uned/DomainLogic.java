@@ -50,11 +50,10 @@ public class DomainLogic {
     // Métodos de la clase DomainLogic
     public void open() { // Este método se encarga de abrir los ficheros.
         JFileChooser jfc = new JFileChooser();
+        jfc.setDialogTitle("Abrir Fichero");
         try {
             int x = jfc.showOpenDialog(null);
-            if (flag == 1) {
-                editor.setText("");
-            }
+            if (flag == 1) {editor.setText("");}
             if (x == JFileChooser.APPROVE_OPTION) {
                 editor.setText("");
                 file = jfc.getSelectedFile();
@@ -63,9 +62,7 @@ public class DomainLogic {
                     String s;
                     boolean firstLine = true;
                     while ((s = reader.readLine()) != null) {
-                        if (!firstLine) {
-                            editor.append("\n");
-                        }
+                        if (!firstLine) {editor.append("\n");}
                         editor.append(s);
                         firstLine = false;
                     }
@@ -75,15 +72,14 @@ public class DomainLogic {
                 flagSave = 1;
                 // Compilación en un hilo separado
                 Compiler c = new Compiler(file, editor, terminal);
-                Thread t = new Thread(c, "compile");
+                Thread t = new Thread(c, "compilar");
                 t.start();
             }
         } catch (Exception e) {logger.log(Level.SEVERE, "Error", e);}
     }
     public void save() { // Este método se encarga de guardar los ficheros.
         try {
-            if (flagSave == 0)
-                saveAs();
+            if (flagSave == 0) {saveAs();}
             else {
                 try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(this.path))) {
                     for (int i = 0; i < editor.getLineCount(); i++) {
@@ -99,99 +95,99 @@ public class DomainLogic {
         JFileChooser jfc=new JFileChooser();
         jfc.setDialogTitle("Guardar Como");
         int x=jfc.showSaveDialog(null);
-        if(x==JFileChooser.APPROVE_OPTION)
-            try {try {
-                // Obtener el archivo seleccionado
+        if(x==JFileChooser.APPROVE_OPTION) {
+            try {
                 File file = jfc.getSelectedFile();
                 String path = file.getPath();
 
-                // Verificar si el archivo tiene la extensión .java, y agregarla si es necesario
                 if (!path.toLowerCase().endsWith(".java")) {
                     path += ".java";
                     file = new File(path);
                 }
 
-                // Crear el archivo si no existe
                 if (!file.exists()) {
-                    boolean created = file.createNewFile(); // Crear el archivo si no existe
+                    boolean created = file.createNewFile();
                     if (!created) {
                         logger.log(Level.SEVERE, "No se pudo crear el archivo.");
-                        return; // Terminar si no se pudo crear el archivo
+                        return;
                     }
                 }
 
-                // Preparar el flujo de salida para el archivo
                 try (PrintStream ps = new PrintStream(Files.newOutputStream(file.toPath()))) {
                     String[] textLines = editor.getText().split("\\n");
-                    for (String line : textLines)
+                    for (String line : textLines) {
                         ps.println(line);
-                } catch (IOException e) {logger.log(Level.SEVERE, "Error al escribir el archivo", e);}
+                    }
+                } catch (IOException e) {
+                    logger.log(Level.SEVERE, "Error al escribir el archivo", e);
+                }
                 jFrame.setTitle(file.getName());
                 flagSave = 1;
 
-                // Crear y lanzar el hilo del compilador
+                // Compilación en un hilo separado
                 Compiler c = new Compiler(file, editor, terminal);
-                Thread t = new Thread(c, "compile");
+                Thread t = new Thread(c, "compilar");
                 t.start();
-            } catch (Exception e) {logger.log(Level.SEVERE, "Error", e);}}catch(Exception e){logger.log(Level.SEVERE, "Error durante la operación de guardado.", e);}
+            } catch (Exception e) {logger.log(Level.SEVERE, "Error durante la operación de guardado.", e);}
+        }
     }
     public void undo () { // Este método se encarga de deshacer los cambios en los ficheros.
         if (!undoStack.isEmpty()) {
-            String previousText = undoStack.pop(); // Recupera el último estado guardado
-            if (redoStack.size() == 5) {
+            String previousText = undoStack.pop();
+            if (redoStack.size() == 20) {
                 redoStack.removeFirst();
-                redoStack.push(previousText); // Guarda el estado actual para poder rehacerlo
-            } else
-                redoStack.push(previousText); // Guarda el estado actual para poder rehacerlo
+                redoStack.push(previousText);
+            } else {redoStack.push(previousText);}
             editor.setText(previousText);
         }
     }
     public void redo () { // Este método se encarga de rehacer los cambios en los ficheros.
         if (!redoStack.isEmpty()) {
-            String nextText = redoStack.pop(); // Recupera el último estado "rehacer"
-            undoStack.push(nextText); // Guarda el estado actual para poder deshacerlo de nuevo
+            String nextText = redoStack.pop();
+            undoStack.push(nextText);
             editor.setText(nextText);
         }
     }
     public void cut () { // Este método se encarga de cortar la cadena de texto seleccionada del editor.
-        if (undoStack.size() == 50) {
+        if (undoStack.size() == 20) {
             undoStack.removeFirst();
-            undoStack.push(editor.getText()); // Guarda el estado actual para poder deshacerlo de nuevo
-        } else
-            undoStack.push(editor.getText()); // Guarda el estado actual para poder deshacerlo de nuevo
+            undoStack.push(editor.getText());
+        } else {undoStack.push(editor.getText());}
         editor.cut();
     }
-    public void copy () { // Este método se encarga de copiar la cadena de texto seleccionada del editor.
-        editor.copy();
-    }
+    // Este método se encarga de copiar la cadena de texto seleccionada del editor.
+    public void copy () {editor.copy();}
     public void paste() { // Este método se encarga de pegar la cadena de texto seleccionada en el editor.
-        if (undoStack.size() == 50) {
+        if (undoStack.size() == 20) {
             undoStack.removeFirst();
-            undoStack.push(editor.getText()); // Guarda el estado actual para poder deshacerlo de nuevo
-        } else
-            undoStack.push(editor.getText()); // Guarda el estado actual para poder deshacerlo de nuevo
+            undoStack.push(editor.getText());
+        } else {undoStack.push(editor.getText());}
         editor.paste();
     }
     public void delete() { // Este método se encarga de borrar la cadena de texto seleccionada del editor.
-        if (undoStack.size() == 5) {
+        if (undoStack.size() == 20) {
             undoStack.removeFirst();
-            undoStack.push(editor.getText()); // Guarda el estado actual para poder deshacerlo de nuevo
-        } else
-            undoStack.push(editor.getText()); // Guarda el estado actual para poder deshacerlo de nuevo
+            undoStack.push(editor.getText());
+        } else {undoStack.push(editor.getText());}
         editor.replaceSelection("");
     }
+    // Este método se encarga de buscar la siguiente cadena dentro del editor que coincida con la cadena de texto introducida por el usuario.
     public int findNext(JTextField tif, int fromIndex) {
-        try{
+        try {
             String search=tif.getText();
             int offset=editor.getText().indexOf(search,fromIndex);
             String str=editor.getText().substring(offset,offset+search.length());
-            if(search.equals(str))
-                editor.select(offset,offset+search.length());  // One less. ie.select(0,4) will select from 0 to 3.
+            if(search.equals(str)) {editor.select(offset,offset+search.length());}
             fromIndex = offset+search.length();
-        }catch(Exception ignored){}
+        } catch (Exception ignored) {}
         return fromIndex;
     }
+    // Este método se encarga de buscar y reemplazar todas las cadenas del editor que coincidan con la cadena de texto introducida por el usuario.
     public void replace(int result,  JTextField findField,  JTextField replaceField) {
+        if (undoStack.size() == 20) {
+            undoStack.removeFirst();
+            undoStack.push(editor.getText());
+        } else {undoStack.push(editor.getText());}
         if (result == JOptionPane.OK_OPTION) {
             SearchContext context = new SearchContext();
             context.setSearchFor(findField.getText());
@@ -203,7 +199,7 @@ public class DomainLogic {
             JOptionPane.showMessageDialog(contentPane, res.getCount() + " coincidencias reemplazadas.");
         }
     }
-    public void goToLine(int result, JTextField findField) {
+    public void goToLine(int result, JTextField findField) { // Este método se encarga de desplazar al usuario a la línea deseada.
         if (result == JOptionPane.OK_OPTION) {
             String lineStr = findField.getText();
             if (lineStr != null) {
@@ -211,17 +207,14 @@ public class DomainLogic {
                     int line = Integer.parseInt(lineStr);
                     int totalLines = editor.getDocument().getDefaultRootElement().getElementCount();
 
-                    if (line > 0 && line <= totalLines) {
-                        editor.setCaretPosition(editor.getDocument().getDefaultRootElement().getElement(line - 1).getStartOffset());
-                    } else {
-                        JOptionPane.showMessageDialog(contentPane, "Invalid line number. Please enter a number between 1 and " + totalLines + ".");
-                    }
+                    if (line > 0 && line <= totalLines) {editor.setCaretPosition(editor.getDocument().getDefaultRootElement().getElement(line - 1).getStartOffset());}
+                    else {JOptionPane.showMessageDialog(contentPane, "Invalid line number. Please enter a number between 1 and " + totalLines + ".");}
                 } catch (NumberFormatException e) {JOptionPane.showMessageDialog(contentPane, "Invalid input. Please enter a valid line number.");
                 } catch (Exception e) {JOptionPane.showMessageDialog(contentPane, "An error occurred. Please try again.");}
             }
         }
     }
-    public void fileProperties() {
+    public void fileProperties() { // Este método muestra algunas propiedades del fichero abierto en el editor.
         int lineCount = editor.getLineCount();
         int wordCount = editor.getText().split("\\s+").length;
         int charCount = editor.getText().length();
@@ -235,8 +228,7 @@ public class DomainLogic {
         terminal.setFont(newFont);
     }
 
-    public void run(JButton ok) {
-        try {
+    public void run(JButton ok) { // Este método se encarga de ejecutar el programa cargado en el editor.
             JLabel lab = new JLabel("Introduce el nombre de la clase que incluye el método main() ");
             run_f = new JDialog();
             run_f.setLayout(new BorderLayout());
@@ -247,7 +239,6 @@ public class DomainLogic {
             run_f.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
             run_f.pack();
             run_f.setVisible(true);
-        } catch (Exception e) {logger.log(Level.SEVERE, "Error in run method", e);}
     }
 
     public void ok() {
@@ -256,7 +247,7 @@ public class DomainLogic {
             String className = run_class.getText();
             if (className.isEmpty()) {
                 JOptionPane.showMessageDialog(null, "Class name cannot be empty.");
-                return;
+                //return;
             }
 
             // Configurar el comando para ejecutar el programa Java
@@ -292,7 +283,7 @@ public class DomainLogic {
         terminal.setText("");
         terminal.setForeground(Color.GREEN);
         Compiler c=new Compiler(file, editor, terminal);
-        Thread t=new Thread(c,"compile");
+        Thread t=new Thread(c,"compilar");
         t.start();
         status.setText("Ln : " + lineNum + "    Col : " + columnNum);
     }

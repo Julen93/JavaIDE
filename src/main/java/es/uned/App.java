@@ -184,26 +184,16 @@ public class App implements ActionListener, ListSelectionListener, CaretListener
             jFrame.setVisible(false);
             new App();
         }
-        if (event.getActionCommand().equals("Abrir"))
-            dl.open();
-        if (event.getActionCommand().equals("Guardar"))
-            dl.save();
-        if (event.getActionCommand().equals("Guardar Como"))
-            dl.saveAs();
-        if (event.getActionCommand().equals("Salir"))
-            System.exit(0);
-        if (event.getActionCommand().equals("Deshacer"))
-            dl.undo();
-        if (event.getActionCommand().equals("rehacer"))
-            dl.redo();
-        if (event.getActionCommand().equals("Cortar"))
-            dl.cut();
-        if (event.getActionCommand().equals("Copiar"))
-            dl.copy();
-        if (event.getActionCommand().equals("Pegar"))
-            dl.paste();
-        if (event.getActionCommand().equals("Borrar"))
-            dl.delete();
+        if (event.getActionCommand().equals("Abrir")) {dl.open();}
+        if (event.getActionCommand().equals("Guardar")) {dl.save();}
+        if (event.getActionCommand().equals("Guardar Como")) {dl.saveAs();}
+        if (event.getActionCommand().equals("Salir")) {System.exit(0);}
+        if (event.getActionCommand().equals("Deshacer")) {dl.undo();}
+        if (event.getActionCommand().equals("rehacer")) {dl.redo();}
+        if (event.getActionCommand().equals("Cortar")) {dl.cut();}
+        if (event.getActionCommand().equals("Copiar")) {dl.copy();}
+        if (event.getActionCommand().equals("Pegar")) {dl.paste();}
+        if (event.getActionCommand().equals("Borrar")) {dl.delete();}
         if (event.getActionCommand().equals("Buscar")) {
             JDialog d=new JDialog(jFrame);
             d.setSize(300,100);
@@ -218,40 +208,43 @@ public class App implements ActionListener, ListSelectionListener, CaretListener
             d.add(b);
             fromIndex =0;
         }
-        if (event.getActionCommand().equals("Buscar siguiente"))
-            fromIndex = dl.findNext(tif, fromIndex);
+        if (event.getActionCommand().equals("Buscar siguiente")) {fromIndex = dl.findNext(tif, fromIndex);}
         if (event.getActionCommand().equals("Remplazar")) {
             JPanel panel = new JPanel(new BorderLayout(5, 5));
+            JPanel labels = new JPanel(new GridLayout(2, 1, 5, 5));
+            JPanel fields = new JPanel(new GridLayout(2, 1, 5, 5));
+
             JTextField findField = new JTextField(20);
             JTextField replaceField = new JTextField(20);
-            panel.add(new JLabel("Buscar: "), BorderLayout.WEST);
-            panel.add(findField, BorderLayout.CENTER);
-            panel.add(new JLabel("Remplazar: "), BorderLayout.SOUTH);
-            panel.add(replaceField, BorderLayout.EAST);
-            int result = JOptionPane.showConfirmDialog(contentPane, panel, "Remplazar", JOptionPane.OK_CANCEL_OPTION);
+
+            labels.add(new JLabel("Buscar: "));
+            labels.add(new JLabel("Reemplazar: "));
+            fields.add(findField);
+            fields.add(replaceField);
+
+            panel.add(labels, BorderLayout.WEST);
+            panel.add(fields, BorderLayout.CENTER);
+
+            int result = JOptionPane.showConfirmDialog(contentPane, panel, "", JOptionPane.OK_CANCEL_OPTION);
+
             dl.replace(result, findField, replaceField);
         }
+
         if (event.getActionCommand().equals("Ir a")) {
             JPanel panel = new JPanel(new BorderLayout(5, 5));
             JLabel label = new JLabel("Ir a linea: ");
             panel.add(label, BorderLayout.NORTH);
             JTextField findField = new JTextField(15);
             panel.add(findField, BorderLayout.CENTER);
-            int result = JOptionPane.showConfirmDialog(jFrame, panel, "Ir a linea", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+            int result = JOptionPane.showConfirmDialog(jFrame, panel, "", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
             dl.goToLine(result, findField);
         }
-        if (event.getActionCommand().equals("Seleccionar Todo"))
-            editor.selectAll();
-        if (event.getActionCommand().equals("Propiedades de Fichero"))
-            dl.fileProperties();
-        if (event.getActionCommand().equals("Aumentar Tamaño"))
-            dl.changeFontSize(editor.getFont().getSize() + 2);
-        if (event.getActionCommand().equals("Reducir Tamaño"))
-            dl.changeFontSize(editor.getFont().getSize() - 2);
-        if (event.getActionCommand().equals("Ejecutar Programa"))
-            dl.run(ok);
-        if (event.getSource() == ok)
-            dl.ok();
+        if (event.getActionCommand().equals("Seleccionar Todo")) {editor.selectAll();}
+        if (event.getActionCommand().equals("Propiedades de Fichero")) {dl.fileProperties();}
+        if (event.getActionCommand().equals("Aumentar Tamaño")) {dl.changeFontSize(editor.getFont().getSize() + 2);}
+        if (event.getActionCommand().equals("Reducir Tamaño")) {dl.changeFontSize(editor.getFont().getSize() - 2);}
+        if (event.getActionCommand().equals("Ejecutar Programa")) {dl.run(ok);}
+        if (event.getSource() == ok) {dl.ok();}
     }
     @Override
     public void keyTyped (KeyEvent event){}
