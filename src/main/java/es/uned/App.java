@@ -51,7 +51,7 @@ public class App implements ActionListener, ListSelectionListener, CaretListener
         }
 
         // Crear JFrame
-        jFrame = new JFrame("App");
+        jFrame = new JFrame("Java IDE");
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // Configurar editor de texto.
@@ -99,19 +99,19 @@ public class App implements ActionListener, ListSelectionListener, CaretListener
 
         // Configurar JMenuBar
         JMenuBar menuBar = new JMenuBar();
-        String[] fileMenuItemName = {"New", "Open", "Save", "Save As", "Exit"};
-        String[] editMenuItemName = {"Undo", "Redo", "Cut", "Copy", "Paste", "Delete", "Find", "Replace", "Go To", "Select All", "File Properties"};
-        String[] fontMenuItemName = {"Increase Size", "Decrease Size"};
-        String[] toolsMenuItemName = {"Run"};
+        String[] fileMenuItemName = {"Nuevo", "Abrir", "Guardar", "Guardar Como", "Salir"};
+        String[] editMenuItemName = {"Deshacer", "Rehacer", "Cortar", "Copiar", "Pegar", "Borrar", "Buscar", "Remplazar", "Ir a", "Seleccionar Todo", "Propiedades de Fichero"};
+        String[] fontMenuItemName = {"Aumentar Tamaño", "Reducir Tamaño"};
+        String[] toolsMenuItemName = {"Ejecutar Programa"};
         int[] fileKeyEvent = {KeyEvent.VK_N, KeyEvent.VK_O, KeyEvent.VK_S, KeyEvent.VK_W, KeyEvent.VK_Q};
         int[] fontKeyEvent = {KeyEvent.VK_I, KeyEvent.VK_D};
         int[] editKeyEvent = {KeyEvent.VK_Z, KeyEvent.VK_Y, KeyEvent.VK_X, KeyEvent.VK_C, KeyEvent.VK_V, KeyEvent.VK_DELETE, KeyEvent.VK_F, KeyEvent.VK_R, KeyEvent.VK_G, KeyEvent.VK_A, KeyEvent.VK_P};
         int[] toolsKeyEvent = {KeyEvent.VK_F9};
         int accShortcut = InputEvent.CTRL_DOWN_MASK; // Usar la máscara correcta
-        JMenu file = new JMenu("File");
-        JMenu edit = new JMenu("Edit");
-        JMenu font = new JMenu("Font");
-        JMenu tools = new JMenu("Tools");
+        JMenu file = new JMenu("Fichero");
+        JMenu edit = new JMenu("Edición");
+        JMenu font = new JMenu("Fuente");
+        JMenu tools = new JMenu("Herramientas");
         menuBar.add(file);
         menuBar.add(edit);
         menuBar.add(font);
@@ -123,7 +123,7 @@ public class App implements ActionListener, ListSelectionListener, CaretListener
         JMenuItem[] fontMenuItem = new JMenuItem[fontMenuItemName.length];
         font.setMnemonic(KeyEvent.VK_O);
         JMenuItem[] toolsMenuItem = new JMenuItem[toolsMenuItemName.length];
-        tools.setMnemonic(KeyEvent.VK_T);
+        tools.setMnemonic(KeyEvent.VK_H);
 
         // Agregar ítems del menú File
         for (int i = 0; i < fileMenuItemName.length; i++) {
@@ -183,79 +183,79 @@ public class App implements ActionListener, ListSelectionListener, CaretListener
     // Métodos de la clase App
     @Override
     public void actionPerformed(ActionEvent event) { // Método encargado de recibir y manejar los eventos de acción.
-        if (event.getActionCommand().equals("New")) {
+        if (event.getActionCommand().equals("Nuevo")) {
             jFrame.setVisible(false);
             new App();
         }
-        if (event.getActionCommand().equals("Open"))
+        if (event.getActionCommand().equals("Abrir"))
             dl.open();
-        if (event.getActionCommand().equals("Save"))
+        if (event.getActionCommand().equals("Guardar"))
             dl.save();
-        if (event.getActionCommand().equals("Save As"))
+        if (event.getActionCommand().equals("Guardar Como"))
             dl.saveAs();
-        if (event.getActionCommand().equals("Exit"))
+        if (event.getActionCommand().equals("Salir"))
             System.exit(0);
-        if (event.getActionCommand().equals("Undo"))
+        if (event.getActionCommand().equals("Deshacer"))
             dl.undo();
-        if (event.getActionCommand().equals("Redo"))
+        if (event.getActionCommand().equals("rehacer"))
             dl.redo();
-        if (event.getActionCommand().equals("Cut"))
+        if (event.getActionCommand().equals("Cortar"))
             dl.cut();
-        if (event.getActionCommand().equals("Copy"))
+        if (event.getActionCommand().equals("Copiar"))
             dl.copy();
-        if (event.getActionCommand().equals("Paste"))
+        if (event.getActionCommand().equals("Pegar"))
             dl.paste();
-        if (event.getActionCommand().equals("Delete"))
+        if (event.getActionCommand().equals("Borrar"))
             dl.delete();
-        if (event.getActionCommand().equals("Find")) {
-            JDialog d=new JDialog(jFrame,"find");
+        if (event.getActionCommand().equals("Buscar")) {
+            JDialog d=new JDialog(jFrame);
             d.setSize(300,100);
             d.setLayout(new FlowLayout());
             d.setVisible(true);
-            JLabel lab=new JLabel("Find what");
+            JLabel lab=new JLabel("Buscar: ");
             tif=new JTextField(15);
-            JButton b=new JButton("Find next");
+            JButton b=new JButton("Buscar siguiente");
             b.addActionListener(this);
             d.add(lab);
             d.add(tif);
             d.add(b);
             fromIndex =0;
         }
-        if (event.getActionCommand().equals("Find next"))
+        if (event.getActionCommand().equals("Buscar siguiente"))
             fromIndex = dl.findNext(tif, fromIndex);
-        if (event.getActionCommand().equals("Replace")) {
+        if (event.getActionCommand().equals("Remplazar")) {
             JPanel panel = new JPanel(new BorderLayout(5, 5));
             JTextField findField = new JTextField(20);
             JTextField replaceField = new JTextField(20);
-            panel.add(new JLabel("Find:"), BorderLayout.WEST);
+            panel.add(new JLabel("Buscar: "), BorderLayout.WEST);
             panel.add(findField, BorderLayout.CENTER);
-            panel.add(new JLabel("Replace:"), BorderLayout.SOUTH);
+            panel.add(new JLabel("Remplazar: "), BorderLayout.SOUTH);
             panel.add(replaceField, BorderLayout.EAST);
-            int result = JOptionPane.showConfirmDialog(contentPane, panel, "Replace", JOptionPane.OK_CANCEL_OPTION);
+            int result = JOptionPane.showConfirmDialog(contentPane, panel, "Remplazar", JOptionPane.OK_CANCEL_OPTION);
             dl.replace(result, findField, replaceField);
         }
-        if (event.getActionCommand().equals("Go To")) {
+        if (event.getActionCommand().equals("Ir a")) {
             // Crear un panel para organizar la etiqueta y el campo de texto
             JPanel panel = new JPanel(new BorderLayout(5, 5));
             // Crear la etiqueta
-            JLabel label = new JLabel("Go to Line:");
+            JLabel label = new JLabel("Ir a linea: ");
             panel.add(label, BorderLayout.NORTH);
             // Crear el campo de texto
             JTextField findField = new JTextField(15);
             panel.add(findField, BorderLayout.CENTER);
             // Mostrar el diálogo de confirmación con el panel personalizado
-            int result = JOptionPane.showConfirmDialog(jFrame, panel, "Go to Line", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+            int result = JOptionPane.showConfirmDialog(jFrame, panel, "Ir a linea", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
             dl.goToLine(result, findField);
         }
-        if (event.getActionCommand().equals("Select All"))
+        if (event.getActionCommand().equals("Seleccionar Todo"))
             editor.selectAll();
-        if (event.getActionCommand().equals("File Properties"))
+        if (event.getActionCommand().equals("Propiedades de Fichero"))
             dl.fileProperties();
-        if (event.getActionCommand().equals("Increase Size"))
+        if (event.getActionCommand().equals("Aumentar Tamaño"))
             dl.changeFontSize(editor.getFont().getSize() + 2);
-        if (event.getActionCommand().equals("Decrease Size"))
+        if (event.getActionCommand().equals("Reducir Tamaño"))
             dl.changeFontSize(editor.getFont().getSize() - 2);
-        if (event.getActionCommand().equals("Run"))
+        if (event.getActionCommand().equals("Ejecutar Programa"))
             dl.run(ok);
         if (event.getSource() == ok)
             dl.ok();
