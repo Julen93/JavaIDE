@@ -82,13 +82,9 @@ public class DomainLogic {
     }
     public void save() { // Este método se encarga de guardar los ficheros.
         try {
-            if (flagSave == 0) {
-                JFileChooser jfc = new JFileChooser();
-                jfc.setDialogTitle("Guardar");
-                int x = jfc.showSaveDialog(null);
-                if (x == JFileChooser.APPROVE_OPTION)
-                    try {save2(jfc);} catch (Exception e) {logger.log(Level.SEVERE, "Error durante la operación de guardado.", e);}
-            } else {
+            if (flagSave == 0)
+                saveAs();
+            else {
                 try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(this.path))) {
                     for (int i = 0; i < editor.getLineCount(); i++) {
                         String[] text = editor.getText().split("\\n");
@@ -104,43 +100,40 @@ public class DomainLogic {
         jfc.setDialogTitle("Guardar Como");
         int x=jfc.showSaveDialog(null);
         if(x==JFileChooser.APPROVE_OPTION)
-            try {save2(jfc);}catch(Exception e){logger.log(Level.SEVERE, "Error durante la operación de guardado.", e);}
-    }
-    private void save2(JFileChooser jfc) { // Este método se encarga de guardar los ficheros.
-        try {
-            // Obtener el archivo seleccionado
-            File file = jfc.getSelectedFile();
-            String path = file.getPath();
+            try {try {
+                // Obtener el archivo seleccionado
+                File file = jfc.getSelectedFile();
+                String path = file.getPath();
 
-            // Verificar si el archivo tiene la extensión .java, y agregarla si es necesario
-            if (!path.toLowerCase().endsWith(".java")) {
-                path += ".java";
-                file = new File(path);
-            }
-
-            // Crear el archivo si no existe
-            if (!file.exists()) {
-                boolean created = file.createNewFile(); // Crear el archivo si no existe
-                if (!created) {
-                    logger.log(Level.SEVERE, "No se pudo crear el archivo.");
-                    return; // Terminar si no se pudo crear el archivo
+                // Verificar si el archivo tiene la extensión .java, y agregarla si es necesario
+                if (!path.toLowerCase().endsWith(".java")) {
+                    path += ".java";
+                    file = new File(path);
                 }
-            }
 
-            // Preparar el flujo de salida para el archivo
-            try (PrintStream ps = new PrintStream(Files.newOutputStream(file.toPath()))) {
-                String[] textLines = editor.getText().split("\\n");
-                for (String line : textLines)
-                    ps.println(line);
-            } catch (IOException e) {logger.log(Level.SEVERE, "Error al escribir el archivo", e);}
-            jFrame.setTitle(file.getName());
-            flagSave = 1;
+                // Crear el archivo si no existe
+                if (!file.exists()) {
+                    boolean created = file.createNewFile(); // Crear el archivo si no existe
+                    if (!created) {
+                        logger.log(Level.SEVERE, "No se pudo crear el archivo.");
+                        return; // Terminar si no se pudo crear el archivo
+                    }
+                }
 
-            // Crear y lanzar el hilo del compilador
-            Compiler c = new Compiler(file, editor, terminal);
-            Thread t = new Thread(c, "compile");
-            t.start();
-        } catch (Exception e) {logger.log(Level.SEVERE, "Error", e);}
+                // Preparar el flujo de salida para el archivo
+                try (PrintStream ps = new PrintStream(Files.newOutputStream(file.toPath()))) {
+                    String[] textLines = editor.getText().split("\\n");
+                    for (String line : textLines)
+                        ps.println(line);
+                } catch (IOException e) {logger.log(Level.SEVERE, "Error al escribir el archivo", e);}
+                jFrame.setTitle(file.getName());
+                flagSave = 1;
+
+                // Crear y lanzar el hilo del compilador
+                Compiler c = new Compiler(file, editor, terminal);
+                Thread t = new Thread(c, "compile");
+                t.start();
+            } catch (Exception e) {logger.log(Level.SEVERE, "Error", e);}}catch(Exception e){logger.log(Level.SEVERE, "Error durante la operación de guardado.", e);}
     }
     public void undo () { // Este método se encarga de deshacer los cambios en los ficheros.
         if (!undoStack.isEmpty()) {
