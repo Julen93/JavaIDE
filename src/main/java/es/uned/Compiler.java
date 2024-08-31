@@ -2,32 +2,24 @@ package es.uned;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
-
-import java.io.*;
 import javax.swing.*;
-import java.util.logging.Level;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.logging.Logger;
+import java.util.logging.Level;
 
-
-// Clase Compiler: Contiene el compilador del IDE.
-public class Compiler extends OutputStream implements Runnable {
-
-
-    // Campos de la clase Compiler
+class Compiler extends OutputStream implements Runnable {
     private final File file;
     private final RSyntaxTextArea editor, terminal;
     private static final Logger logger = Logger.getLogger(Compiler.class.getName());
 
-
-    // Constructor de la clase Compiler
-    public Compiler(File file, RSyntaxTextArea editor, RSyntaxTextArea terminal) {
+    Compiler(File file, RSyntaxTextArea editor, RSyntaxTextArea terminal) {
         this.file = file;
         this.editor = editor;
         this.terminal = terminal;
     }
 
-
-    // Métodos de la clase Compiler
     public void run() {
         try {
             PrintStream out = new PrintStream(this);
@@ -45,14 +37,19 @@ public class Compiler extends OutputStream implements Runnable {
                 if (javaFile == null)
                     System.out.println("Error: El nombre del archivo no coincide con el nombre de la clase");
 
-                // Compilar el archivo Java
+                // Escribir el archivo .java con codificación UTF-8
                 assert javaFile != null;
-                ProcessBuilder pb = new ProcessBuilder("javac", javaFile.getName());
+                try (PrintWriter writer = new PrintWriter(Files.newBufferedWriter(javaFile.toPath(), StandardCharsets.UTF_8))) {
+                    writer.print(tfText);
+                }
+
+                // Compilar el archivo Java
+                ProcessBuilder pb = new ProcessBuilder("javac", "-encoding", "UTF-8", javaFile.getName());
                 pb.directory(new File(".")); // Directorio de trabajo actual
                 pb.redirectErrorStream(true);
                 Process p = pb.start();
 
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8))) {
                     String line;
                     while ((line = reader.readLine()) != null) {
                         System.out.println(line);
@@ -62,7 +59,6 @@ public class Compiler extends OutputStream implements Runnable {
                 int exitCode = p.waitFor();
                 if (exitCode == 0) {
                     System.out.println("Compilation successful.\n");
-
                 } else {
                     System.out.println("Compilation failed.\n");
                 }
