@@ -25,40 +25,27 @@ public class RunErr extends OutputStream implements Runnable {
 
 
     // Métodos de la clase RunErr
+    // Este método redirige la salida de la clase RunErr a la terminal del IDE.
+    @Override
+    public void write(int b) {SwingUtilities.invokeLater(() -> terminal.append(String.valueOf((char) b)));}
+    // Método principal de la clase. Se encarga de ejecutar el stderr y sus funciones.
     @Override
     public void run() {
         try {
             PrintStream err = new PrintStream(this, true);
             System.setErr(err);
-            terminal.setText("");  // Limpiar el área de texto al inicio
+            terminal.setText("");
 
             try (BufferedReader readerError = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
                 String line;
                 while ((line = readerError.readLine()) != null) {
                     String finalLine = line;
                     SwingUtilities.invokeLater(() -> {
-                        // Guardar el color actual del texto
-                        //Color originalColor = terminal.getForeground();
-                        // Cambiar el color a rojo solo para el texto de error
                         terminal.setForeground(Color.RED);
-
                         terminal.append(finalLine + "\n");
-                        // Restaurar el color original para el siguiente texto
-                        //terminal.setForeground(originalColor);
                     });
                 }
             }
-        } catch (Exception e) {
-            SwingUtilities.invokeLater(() -> terminal.append("Error: " + e.getMessage() + "\n"));
-        }
-    }
-
-
-
-
-    @Override
-    public void write(int b) {
-        // Escribir un solo byte en la terminal
-        SwingUtilities.invokeLater(() -> terminal.append(String.valueOf((char) b)));
+        } catch (Exception e) {SwingUtilities.invokeLater(() -> terminal.append("Error: " + e.getMessage() + "\n"));}
     }
 }

@@ -228,50 +228,42 @@ public class DomainLogic {
         terminal.setFont(newFont);
     }
 
-    public void run(JButton ok) { // Este método se encarga de ejecutar el programa cargado en el editor.
-            JLabel lab = new JLabel("Introduce el nombre de la clase que incluye el método main() ");
-            run_f = new JDialog();
-            run_f.setLayout(new BorderLayout());
-            run_class = new JTextField(15);
-            run_f.add(lab, BorderLayout.NORTH);
-            run_f.add(run_class, BorderLayout.CENTER);
-            run_f.add(ok, BorderLayout.SOUTH);
-            run_f.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-            run_f.pack();
-            run_f.setVisible(true);
+    public void run(JButton ok) { // Este método se encarga de recibir el nombre de la clase que se va a ejecutar.
+        JLabel lab = new JLabel("Introduce el nombre de la clase que incluye el método main() ");
+        run_f = new JDialog();
+        run_f.setLayout(new BorderLayout());
+        run_class = new JTextField(15);
+        run_f.add(lab, BorderLayout.NORTH);
+        run_f.add(run_class, BorderLayout.CENTER);
+        run_f.add(ok, BorderLayout.SOUTH);
+        run_f.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        run_f.pack();
+        run_f.setVisible(true);
     }
 
-    public void ok() {
+    public void ok() { // Este método se encarga de llamar a la JVM para ejecutar el programa proporcionado por el usuario.
         try {
-            // Obtener el nombre de la clase desde el campo de texto
             String className = run_class.getText();
-            if (className.isEmpty()) {
-                JOptionPane.showMessageDialog(null, "Class name cannot be empty.");
-                //return;
-            }
+            if (className.isEmpty()) {JOptionPane.showMessageDialog(null, "El nombre de la clase no puede ser vacío.");}
 
-            // Configurar el comando para ejecutar el programa Java
             run_f.setVisible(false);
             ProcessBuilder processBuilder = new ProcessBuilder("java", className);
             Process p = processBuilder.start();
 
-            // Inicializar los manejadores de entrada y salida
             RunOut runOut = new RunOut(terminal, p);
             RunErr runErr = new RunErr(terminal, p);
             RunIn runIn = new RunIn(terminal, p);
 
-            // Iniciar hilos para manejar la entrada, salida y errores
-            Thread tr = new Thread(runOut, "runA");
-            Thread tr1 = new Thread(runErr, "runB");
-            Thread tr2 = new Thread(runIn, "runC");
+            Thread tr = new Thread(runOut, "runOut");
+            Thread tr1 = new Thread(runErr, "runErr");
+            Thread tr2 = new Thread(runIn, "runIn");
+
             tr.start();
             tr1.start();
             tr2.start();
-        } catch (IOException e) {
-            logger.log(Level.SEVERE, "Error executing the Java process", e);
-        }
+        } catch (IOException e) {logger.log(Level.SEVERE, "Error en la ejecución del programa.", e);}
     }
-    public void caretUpdate (){
+    public void caretUpdate (){ // Método encargado de manejar eventos relacionados con el cursor.
         int caretPos;
         int lineNum=1;
         int columnNum=1;
@@ -279,23 +271,22 @@ public class DomainLogic {
             caretPos = editor.getCaretPosition();
             lineNum = editor.getLineOfOffset(caretPos);
             columnNum = caretPos - editor.getLineStartOffset(lineNum);
-        }catch(Exception e){logger.log(Level.SEVERE, "Error.", e);}
+        }catch(Exception e) {logger.log(Level.SEVERE, "Error.", e);}
         terminal.setText("");
         terminal.setForeground(Color.GREEN);
+        // Compilación en un hilo separado
         Compiler c=new Compiler(file, editor, terminal);
         Thread t=new Thread(c,"compilar");
         t.start();
         status.setText("Ln : " + lineNum + "    Col : " + columnNum);
     }
-    public void keyPressed() {
+    public void keyPressed() { // Método encargado de ejecutarse cuando las teclas suprimir o backspace son presionadas.
         if (unf == 0) {
-            if (undoStack.size() == 5) {
+            if (undoStack.size() == 20) {
                 undoStack.removeFirst();
-                undoStack.push(editor.getText()); // Guarda el estado actual para poder deshacerlo de nuevo
-            } else
-                undoStack.push(editor.getText()); // Guarda el estado actual para poder deshacerlo de nuevo
+                undoStack.push(editor.getText());
+            } else {undoStack.push(editor.getText());}
             unf = 1;
-        } else
-            unf = 0;
+        } else {unf = 0;}
     }
 }
