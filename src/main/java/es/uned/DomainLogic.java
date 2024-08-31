@@ -48,7 +48,7 @@ public class DomainLogic {
 
 
     // Métodos de la clase DomainLogic
-    public void open() {
+    public void open() { // Este método se encarga de abrir los ficheros.
         JFileChooser jfc = new JFileChooser();
         try {
             int x = jfc.showOpenDialog(null);
@@ -64,7 +64,7 @@ public class DomainLogic {
                     boolean firstLine = true;
                     while ((s = reader.readLine()) != null) {
                         if (!firstLine) {
-                            editor.append("\n"); // Agrega el salto de línea antes de agregar la siguiente línea
+                            editor.append("\n");
                         }
                         editor.append(s);
                         firstLine = false;
@@ -78,53 +78,35 @@ public class DomainLogic {
                 Thread t = new Thread(c, "compile");
                 t.start();
             }
-        } catch (Exception e) {
-            // Registrar la excepción con un mensaje
-            logger.log(Level.SEVERE, "An error occurred", e);
-        }
+        } catch (Exception e) {logger.log(Level.SEVERE, "Error", e);}
     }
-    public void save() {
+    public void save() { // Este método se encarga de guardar los ficheros.
         try {
             if (flagSave == 0) {
                 JFileChooser jfc = new JFileChooser();
+                jfc.setDialogTitle("Guardar");
                 int x = jfc.showSaveDialog(null);
-                if (x == JFileChooser.APPROVE_OPTION) {
-                    try {
-                        save2(jfc);
-                    } catch (Exception e) {
-                        // Registrar la excepción con un mensaje
-                        logger.log(Level.SEVERE, "An error occurred during save", e);
-                    }
-                }
+                if (x == JFileChooser.APPROVE_OPTION)
+                    try {save2(jfc);} catch (Exception e) {logger.log(Level.SEVERE, "Error durante la operación de guardado.", e);}
             } else {
                 try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(this.path))) {
                     for (int i = 0; i < editor.getLineCount(); i++) {
                         String[] text = editor.getText().split("\\n");
                         writer.write(text[i]);
-                        writer.newLine(); // Añadir una nueva línea después de cada línea escrita
+                        writer.newLine();
                     }
-                } catch (Exception e) {
-                    // Registrar la excepción con un mensaje
-                    logger.log(Level.SEVERE, "An error occurred during file write", e);
-                }
+                } catch (Exception e) {logger.log(Level.SEVERE, "Error durante la operación de  escritura.", e);}
             }
-        } catch (Exception e) {
-            // Registrar la excepción con un mensaje
-            logger.log(Level.SEVERE, "An error occurred during save", e);
-        }
+        } catch (Exception e) {logger.log(Level.SEVERE, "Error durante la operación de guardado.", e);}
     }
-    public void saveAs() {
+    public void saveAs() { // Este método se encarga de guardar los ficheros.
         JFileChooser jfc=new JFileChooser();
-        jfc.setDialogTitle("Save as");
+        jfc.setDialogTitle("Guardar Como");
         int x=jfc.showSaveDialog(null);
         if(x==JFileChooser.APPROVE_OPTION)
-        {
-            try {
-                save2(jfc);
-            }catch(Exception er){System.out.println();}
-        }
+            try {save2(jfc);}catch(Exception e){logger.log(Level.SEVERE, "Error durante la operación de guardado.", e);}
     }
-    private void save2(JFileChooser jfc) {
+    private void save2(JFileChooser jfc) { // Este método se encarga de guardar los ficheros.
         try {
             // Obtener el archivo seleccionado
             File file = jfc.getSelectedFile();
@@ -147,33 +129,20 @@ public class DomainLogic {
 
             // Preparar el flujo de salida para el archivo
             try (PrintStream ps = new PrintStream(Files.newOutputStream(file.toPath()))) {
-                // Obtener el texto del editor y dividirlo en líneas
                 String[] textLines = editor.getText().split("\\n");
-
-                // Imprimir las líneas al flujo de salida
-                for (String line : textLines) {
+                for (String line : textLines)
                     ps.println(line);
-                }
-            } catch (IOException e) {
-                logger.log(Level.SEVERE, "Error al escribir el archivo", e);
-            }
-
-            // Actualizar el título del JFrame
+            } catch (IOException e) {logger.log(Level.SEVERE, "Error al escribir el archivo", e);}
             jFrame.setTitle(file.getName());
-
-            // Actualizar la bandera de guardado
             flagSave = 1;
 
             // Crear y lanzar el hilo del compilador
             Compiler c = new Compiler(file, editor, terminal);
             Thread t = new Thread(c, "compile");
             t.start();
-        } catch (Exception e) {
-            // Registrar cualquier excepción no manejada
-            logger.log(Level.SEVERE, "Error en el método", e);
-        }
+        } catch (Exception e) {logger.log(Level.SEVERE, "Error", e);}
     }
-    public void undo () {
+    public void undo () { // Este método se encarga de deshacer los cambios en los ficheros.
         if (!undoStack.isEmpty()) {
             String previousText = undoStack.pop(); // Recupera el último estado guardado
             if (redoStack.size() == 5) {
@@ -184,14 +153,14 @@ public class DomainLogic {
             editor.setText(previousText);
         }
     }
-    public void redo () {
+    public void redo () { // Este método se encarga de rehacer los cambios en los ficheros.
         if (!redoStack.isEmpty()) {
             String nextText = redoStack.pop(); // Recupera el último estado "rehacer"
             undoStack.push(nextText); // Guarda el estado actual para poder deshacerlo de nuevo
             editor.setText(nextText);
         }
     }
-    public void cut () {
+    public void cut () { // Este método se encarga de cortar la cadena de texto seleccionada del editor.
         if (undoStack.size() == 50) {
             undoStack.removeFirst();
             undoStack.push(editor.getText()); // Guarda el estado actual para poder deshacerlo de nuevo
@@ -199,10 +168,10 @@ public class DomainLogic {
             undoStack.push(editor.getText()); // Guarda el estado actual para poder deshacerlo de nuevo
         editor.cut();
     }
-    public void copy () {
+    public void copy () { // Este método se encarga de copiar la cadena de texto seleccionada del editor.
         editor.copy();
     }
-    public void paste() {
+    public void paste() { // Este método se encarga de pegar la cadena de texto seleccionada en el editor.
         if (undoStack.size() == 50) {
             undoStack.removeFirst();
             undoStack.push(editor.getText()); // Guarda el estado actual para poder deshacerlo de nuevo
@@ -210,7 +179,7 @@ public class DomainLogic {
             undoStack.push(editor.getText()); // Guarda el estado actual para poder deshacerlo de nuevo
         editor.paste();
     }
-    public void delete() {
+    public void delete() { // Este método se encarga de borrar la cadena de texto seleccionada del editor.
         if (undoStack.size() == 5) {
             undoStack.removeFirst();
             undoStack.push(editor.getText()); // Guarda el estado actual para poder deshacerlo de nuevo
@@ -238,11 +207,10 @@ public class DomainLogic {
             context.setRegularExpression(false);
             context.setSearchForward(true);
             SearchResult res = SearchEngine.replaceAll(editor, context);
-            JOptionPane.showMessageDialog(contentPane, res.getCount() + " occurrences replaced.");
+            JOptionPane.showMessageDialog(contentPane, res.getCount() + " coincidencias reemplazadas.");
         }
     }
     public void goToLine(int result, JTextField findField) {
-        // Si el usuario presionó OK, obtener el valor del campo de texto
         if (result == JOptionPane.OK_OPTION) {
             String lineStr = findField.getText();
             if (lineStr != null) {
@@ -255,11 +223,8 @@ public class DomainLogic {
                     } else {
                         JOptionPane.showMessageDialog(contentPane, "Invalid line number. Please enter a number between 1 and " + totalLines + ".");
                     }
-                } catch (NumberFormatException e) {
-                    JOptionPane.showMessageDialog(contentPane, "Invalid input. Please enter a valid line number.");
-                } catch (Exception e) {
-                    JOptionPane.showMessageDialog(contentPane, "An error occurred. Please try again.");
-                }
+                } catch (NumberFormatException e) {JOptionPane.showMessageDialog(contentPane, "Invalid input. Please enter a valid line number.");
+                } catch (Exception e) {JOptionPane.showMessageDialog(contentPane, "An error occurred. Please try again.");}
             }
         }
     }
@@ -279,11 +244,7 @@ public class DomainLogic {
 
     public void run(JButton ok) {
         try {
-            //Compiler c=new Compiler(file, editor, terminal);
-            //Thread t1=new Thread(c,"compile");
-            //t1.start();
-            // Configurar la interfaz de usuario para ingresar el nombre de la clase
-            JLabel lab = new JLabel("Enter the name of class containing main() ");
+            JLabel lab = new JLabel("Introduce el nombre de la clase que incluye el método main() ");
             run_f = new JDialog();
             run_f.setLayout(new BorderLayout());
             run_class = new JTextField(15);
@@ -293,9 +254,7 @@ public class DomainLogic {
             run_f.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
             run_f.pack();
             run_f.setVisible(true);
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error in run method", e);
-        }
+        } catch (Exception e) {logger.log(Level.SEVERE, "Error in run method", e);}
     }
 
     public void ok() {
@@ -336,10 +295,7 @@ public class DomainLogic {
             caretPos = editor.getCaretPosition();
             lineNum = editor.getLineOfOffset(caretPos);
             columnNum = caretPos - editor.getLineStartOffset(lineNum);
-        }catch(Exception e){
-            // Registrar la excepción con un mensaje
-            logger.log(Level.SEVERE, "An error occurred", e);
-        }
+        }catch(Exception e){logger.log(Level.SEVERE, "Error.", e);}
         terminal.setText("");
         terminal.setForeground(Color.GREEN);
         Compiler c=new Compiler(file, editor, terminal);

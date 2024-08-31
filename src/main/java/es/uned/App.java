@@ -45,10 +45,7 @@ public class App implements ActionListener, ListSelectionListener, CaretListener
         // Aplicar Look and Feel para configurar la apariencia de la aplicación
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            // Registrar la excepción con un mensaje
-            logger.log(Level.SEVERE, "Error: setLookAndFeel.", e);
-        }
+        } catch (Exception e) {logger.log(Level.SEVERE, "Error: setLookAndFeel.", e);}
 
         // Crear JFrame
         jFrame = new JFrame("Java IDE");
@@ -235,15 +232,11 @@ public class App implements ActionListener, ListSelectionListener, CaretListener
             dl.replace(result, findField, replaceField);
         }
         if (event.getActionCommand().equals("Ir a")) {
-            // Crear un panel para organizar la etiqueta y el campo de texto
             JPanel panel = new JPanel(new BorderLayout(5, 5));
-            // Crear la etiqueta
             JLabel label = new JLabel("Ir a linea: ");
             panel.add(label, BorderLayout.NORTH);
-            // Crear el campo de texto
             JTextField findField = new JTextField(15);
             panel.add(findField, BorderLayout.CENTER);
-            // Mostrar el diálogo de confirmación con el panel personalizado
             int result = JOptionPane.showConfirmDialog(jFrame, panel, "Ir a linea", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
             dl.goToLine(result, findField);
         }
