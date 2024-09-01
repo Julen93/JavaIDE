@@ -5,7 +5,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-// Clase Shutdown: Contiene el código que se va a ejecutar a modo de hook cuando la aplicación finalize.
+// Clase Shutdown: Contiene el código que se va a ejecutar a modo de hook cuando la aplicación finalice.
 public class Shutdown implements Runnable {
 
 
@@ -14,32 +14,24 @@ public class Shutdown implements Runnable {
 
 
     // Métodos de la clase Shutdown
+    // Este método se encarga de ejecutar comandos de terminal dentro de la clase Shutdown.
+    private void executeCommand(String... command) throws IOException {
+        ProcessBuilder processBuilder = new ProcessBuilder(command);
+        processBuilder.inheritIO();
+        Process process = processBuilder.start();
+        try {
+            process.waitFor();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            logger.log(Level.WARNING, "Process interrupted", e);
+        }
+    }
+    // Método principal de la clase. Se encarga de ejecutar el shutdown del IDE y sus funciones.
     @Override
     public void run() {
         try {
-            // Eliminar archivos .class
             executeCommand("cmd", "/c", "del *.class");
-
-            // Eliminar el archivo Test.java
             executeCommand("cmd", "/c", "del Test.java");
-
-        } catch (IOException e) {
-            // Registrar la excepción con un mensaje
-            logger.log(Level.SEVERE, "An error occurred while executing commands", e);
-        }
-    }
-
-    private void executeCommand(String... command) throws IOException {
-        ProcessBuilder processBuilder = new ProcessBuilder(command);
-        processBuilder.inheritIO(); // Utiliza la entrada, salida y error del proceso actual
-        Process process = processBuilder.start();
-
-        try {
-            // Espera a que el proceso termine antes de continuar
-            process.waitFor();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt(); // Restablecer el estado de interrupción
-            logger.log(Level.WARNING, "Process interrupted", e);
-        }
+        } catch (IOException e) {logger.log(Level.SEVERE, "An error occurred while executing commands", e);}
     }
 }

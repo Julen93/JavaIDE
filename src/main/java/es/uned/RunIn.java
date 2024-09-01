@@ -29,21 +29,8 @@ public class RunIn implements Runnable, KeyListener {
 
 
     // Métodos de la clase RunIn
-
+    // Este método se encarga de recoger los las teclas presionadas del teclado.
     @Override
-    /*public void keyReleased(KeyEvent event) {
-        try {
-            char chr = event.getKeyChar();
-            if (event.getKeyCode() == KeyEvent.VK_ENTER) {
-                pw.println(input);
-                pw.flush();
-                input.setLength(0);
-            } else if (event.getKeyCode() == KeyEvent.VK_BACK_SPACE && input.length() > 0) {input.setLength(input.length() - 1);}
-            else if (event.getKeyCode() >= 32 && event.getKeyCode() <= 126) {
-                if (!(event.getKeyCode() >= 37 && event.getKeyCode() <= 40)) {input.append(chr);}
-            }
-        } catch (Exception e) {SwingUtilities.invokeLater(() -> terminal.append("Input is not allowed!!\n"));}
-    }*/
     public void keyReleased(KeyEvent event) {
         try {
             char chr = event.getKeyChar();
@@ -69,7 +56,7 @@ public class RunIn implements Runnable, KeyListener {
     public void keyTyped(KeyEvent e) {}
     @Override
     public void keyPressed(KeyEvent e) {}
-    // Este método redirige la salida de la clase RunErr a la terminal del IDE.
+    // Método principal de la clase. Se encarga de ejecutar el stdin y sus funciones.
     @Override
     public void run() {
         try {

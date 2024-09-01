@@ -24,24 +24,18 @@ public class RunOut extends OutputStream implements Runnable {
 
 
     // Métodos de la clase RunOut
+    // Este método redirige la salida de la clase RunOut a la terminal del IDE.
+    @Override
+    public void write(int b) {SwingUtilities.invokeLater(() -> terminal.append(String.valueOf((char) b)));}
+    // Método principal de la clase. Se encarga de ejecutar el stdout y sus funciones.
     @Override
     public void run() {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                // Enviar la salida al terminal
                 String finalLine = line;
                 SwingUtilities.invokeLater(() -> terminal.append(finalLine + "\n"));
             }
-        } catch (IOException e) {
-            // Registrar la excepción o mostrar un mensaje en la interfaz
-            SwingUtilities.invokeLater(() -> terminal.append("Error: " + e.getMessage() + "\n"));
-        }
-    }
-
-    @Override
-    public void write(int b) {
-        // Redirigir el carácter al RSyntaxTextArea
-        SwingUtilities.invokeLater(() -> terminal.append(String.valueOf((char) b)));
+        } catch (IOException e) {SwingUtilities.invokeLater(() -> terminal.append("Error: " + e.getMessage() + "\n"));}
     }
 }
