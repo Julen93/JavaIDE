@@ -218,8 +218,8 @@ public class DomainLogic {
         int lineCount = editor.getLineCount();
         int wordCount = editor.getText().split("\\s+").length;
         int charCount = editor.getText().length();
-        String message = String.format("Lines: %d\nWords: %d\nCharacters: %d", lineCount, wordCount, charCount);
-        JOptionPane.showMessageDialog(contentPane, message, "File Properties", JOptionPane.INFORMATION_MESSAGE);
+        String message = String.format("Líneas: %d\nPalabras: %d\nCaracteres: %d", lineCount, wordCount, charCount);
+        JOptionPane.showMessageDialog(contentPane, message, "Propiedades de Fichero", JOptionPane.INFORMATION_MESSAGE);
     }
     public void changeFontSize(int newSize) {
         Font currentFont = editor.getFont();
