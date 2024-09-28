@@ -22,11 +22,9 @@ public class DomainLogic {
 
     // Campos de la clase DomainLogic
     private int unf;
-    private JDialog run_f;
     private File currentClass;
     private File currentProject;
     private final JLabel status;
-    private JTextField run_class;
     private String currentPackage;
     private final JPanel contentPane;
     private final RSyntaxTextArea editor, terminal;
@@ -375,21 +373,7 @@ public class DomainLogic {
         editor.setFont(newFont);
         terminal.setFont(newFont);
     }
-
-    public void run(JButton ok) { // Este método se encarga de recibir el nombre de la clase que se va a ejecutar.
-        JLabel lab = new JLabel("Introduce el nombre de la clase que incluye el método main() ");
-        run_f = new JDialog();
-        run_f.setLayout(new BorderLayout());
-        run_class = new JTextField(15);
-        run_f.add(lab, BorderLayout.NORTH);
-        run_f.add(run_class, BorderLayout.CENTER);
-        run_f.add(ok, BorderLayout.SOUTH);
-        run_f.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        run_f.pack();
-        run_f.setVisible(true);
-    }
-
-    public void ok() { // Este método se encarga de llamar a la JVM para ejecutar el programa proporcionado por el usuario.
+    public void run(JDialog run_f, JTextField run_class) { // Este método se encarga de llamar a la JVM para ejecutar el programa proporcionado por el usuario.
         try {
             String className = run_class.getText();
             if (className.isEmpty()) {JOptionPane.showMessageDialog(null, "El nombre de la clase no puede ser vacío.");}

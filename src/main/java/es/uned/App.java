@@ -33,6 +33,8 @@ public class App implements ActionListener, ListSelectionListener, CaretListener
     DomainLogic dl ;
     JPanel contentPane;
     private int fromIndex;
+    private JDialog run_f;
+    private JTextField run_class;
     private JTextField tif;
     private File currentClass;
     private File currentProject;
@@ -230,11 +232,21 @@ public class App implements ActionListener, ListSelectionListener, CaretListener
             panel.add(labels, BorderLayout.WEST);
             panel.add(fields, BorderLayout.CENTER);
 
-            JOptionPane.showConfirmDialog(contentPane, panel, "", JOptionPane.OK_CANCEL_OPTION);
+            int result = JOptionPane.showConfirmDialog(contentPane, panel, "", JOptionPane.OK_CANCEL_OPTION);
 
-            currentProject = dl.createProject(Project, Org, App);
-            fileExplorer.loadProject(currentProject);
-            jFrame.setTitle("Nombre Proyecto: " + currentProject.getName());
+            // Si el usuario hace clic en "OK" (botón OK)
+            if (result == JOptionPane.OK_OPTION) {
+                // Comprobar si algún campo está vacío
+                if (Project.getText().trim().isEmpty() || Org.getText().trim().isEmpty() || App.getText().trim().isEmpty()) {
+                    // Mostrar mensaje de error
+                    JOptionPane.showMessageDialog(contentPane, "Todos los campos son obligatorios. Por favor, rellene todos los campos.", "Error", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    // Si todos los campos están completos, crear el proyecto
+                    currentProject = dl.createProject(Project, Org, App);
+                    fileExplorer.loadProject(currentProject);
+                    jFrame.setTitle("Nombre Proyecto: " + currentProject.getName());
+                }
+            }
         }
         if (event.getActionCommand().equals("Abrir Proyecto")) {
             currentProject = dl.openProject();
@@ -305,8 +317,21 @@ public class App implements ActionListener, ListSelectionListener, CaretListener
         if (event.getActionCommand().equals("Propiedades de Fichero")) {dl.fileProperties();}
         if (event.getActionCommand().equals("Aumentar Tamaño")) {dl.changeFontSize(editor.getFont().getSize() + 2);}
         if (event.getActionCommand().equals("Reducir Tamaño")) {dl.changeFontSize(editor.getFont().getSize() - 2);}
-        if (event.getActionCommand().equals("Ejecutar Programa")) {dl.run(ok);}
-        if (event.getSource() == ok) {dl.ok();}
+        if (event.getActionCommand().equals("Ejecutar Programa")) {
+            if (currentProject != null) {
+                JLabel lab = new JLabel("Introduce el nombre de la clase que incluye el método main() ");
+                run_f = new JDialog();
+                run_f.setLayout(new BorderLayout());
+                run_class = new JTextField(15);
+                run_f.add(lab, BorderLayout.NORTH);
+                run_f.add(run_class, BorderLayout.CENTER);
+                run_f.add(ok, BorderLayout.SOUTH);
+                run_f.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+                run_f.pack();
+                run_f.setVisible(true);
+            } else {JOptionPane.showMessageDialog(contentPane, "Debes abrir un proyecto antes de intentar ejecutar un programa.");}
+        }
+        if (event.getSource() == ok) {dl.run(run_f, run_class);}
     }
     @Override
     public void keyTyped (KeyEvent event){}
@@ -330,7 +355,7 @@ public class App implements ActionListener, ListSelectionListener, CaretListener
     @Override
     public void valueChanged (ListSelectionEvent event) {}
     @Override
-    public void valueChanged(TreeSelectionEvent e) {
+    public void valueChanged(TreeSelectionEvent event) {
         File file = fileExplorer.getFile();
         if (file != null && file.isFile()) {
             jFrame.setTitle("Nombre Proyecto: " + currentProject.getName() + " / Nombre Fichero: " + file.getName());
@@ -345,9 +370,6 @@ public class App implements ActionListener, ListSelectionListener, CaretListener
         }
     }
     public static void main (String...args){ // Método principal de la clase.
-        Runtime rt = Runtime.getRuntime();
-        Shutdown sd = new Shutdown();
-        rt.addShutdownHook(new Thread(sd));
         new App();
     }
 }

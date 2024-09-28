@@ -33,17 +33,19 @@ public class FileExplorer extends JPanel {
     }
 
     public void loadProject(File rootDirectory) {
-        // Actualiza el directorio raíz con el nuevo que recibe como parámetro
-        this.rootDirectory = rootDirectory;
+        if (rootDirectory != null) {
+            // Actualiza el directorio raíz con el nuevo que recibe como parámetro
+            this.rootDirectory = rootDirectory;
 
-        // Limpiar el nodo raíz
-        rootNode.removeAllChildren();
+            // Limpiar el nodo raíz
+            rootNode.removeAllChildren();
 
-        // Llenar el árbol de nuevo con el nuevo directorio raíz
-        createTree(rootNode, this.rootDirectory);
+            // Llenar el árbol de nuevo con el nuevo directorio raíz
+            createTree(rootNode, this.rootDirectory);
 
-        // Actualizar el modelo del árbol
-        treeModel.reload();
+            // Actualizar el modelo del árbol
+            treeModel.reload();
+        }
     }
 
     // Método para llenar el árbol con los archivos y carpetas

@@ -54,15 +54,15 @@ class Compiler extends OutputStream implements Runnable {
             return "";
         }
     }
-    // Este método se encarga de crear una copia del fichero en el path del programa si el nombre de este y el de la clase que contiene coinciden.
-    private File getFile(int offsetP1, int offsetP2, String search1, String search2, String tfText) {
+    // Este método se encarga de comprobar si el nombre del fichero y el del paquete en el que se encuentra aparecen en la clase.
+    private File checkFile(int offsetP1, int offsetP2, String search1, String search2, String tfText) {
         String packageName = getPackageName(offsetP1, search1, tfText);
         String fileNameWithoutExtension = currentClass.getName().replace(".java", "");
         String className = getClassName(offsetP2, search2, tfText);
 
         if (currentPackage.equals(packageName)) {
             if (fileNameWithoutExtension.equals(className)) {
-                return new File(className + ".java");
+                return currentClass;
             } else {
                 System.out.println("Error: El nombre del archivo no coincide con el nombre de la clase");
                 return null;
@@ -84,7 +84,7 @@ class Compiler extends OutputStream implements Runnable {
             int offsetP2 = tfText.indexOf(search2);
             if (offsetP1 != -1) {
                 if (offsetP2 != -1) {
-                    File javaFile = getFile(offsetP1, offsetP2, search1, search2, tfText);
+                    File javaFile = checkFile(offsetP1, offsetP2, search1, search2, tfText);
 
                     assert javaFile != null;
                     try (PrintWriter writer = new PrintWriter(Files.newBufferedWriter(javaFile.toPath()))) {writer.print(tfText);}
@@ -103,7 +103,14 @@ class Compiler extends OutputStream implements Runnable {
                     if (exitCode == 0) {
                         System.out.println("Compilacion de "+currentClass.getName()+" completada con exito.\n");
                     } else {
-                        System.out.println("Error de compilación.\n");
+                        System.out.println("Error de compilacion.\n");
+                        // **Eliminación del archivo class previo debido a una compilación fallida**
+                        File classFile = getDotClass();
+                        if (classFile.exists()) {
+                            boolean delete = classFile.delete();
+                            if (delete) {System.out.println("Archivo eliminado exitosamente.");
+                            } else {System.err.println("Error: no se pudo eliminar el archivo.");}
+                        }
                     }
                 } else {
                     System.out.println("Error: No se ha encontrado una clase publica definida.\n");
@@ -115,7 +122,6 @@ class Compiler extends OutputStream implements Runnable {
             logger.log(Level.SEVERE, "Error durante la compilacion.", e);
         }
     }
-
     private Process getProcess(File javaFile) throws IOException {
         File classesDir = new File(currentProject, "target/classes");
 
@@ -125,10 +131,18 @@ class Compiler extends OutputStream implements Runnable {
         pb.redirectErrorStream(true);
         return pb.start();
     }
-
     // Este método redirige la salida de la clase Compiler a la terminal del IDE.
     @Override
     public void write(int b) {
         SwingUtilities.invokeLater(() -> terminal.append(String.valueOf((char) b)));
+    }
+    private File getDotClass() {
+        File classesDir = new File(currentProject, "target/classes");
+        // Convertir el nombre del paquete en una ruta de directorios
+        String packagePath = currentPackage.replace('.', File.separatorChar);
+        // Nombre de la clase sin la extensión .java
+        String className = currentClass.getName().replace(".java", "");
+        // Ruta completa al archivo .class
+        return new File(classesDir, packagePath + File.separator + className + ".class");
     }
 }
