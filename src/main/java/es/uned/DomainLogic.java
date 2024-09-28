@@ -201,18 +201,16 @@ public class DomainLogic {
 
         return null;
     }
-    public File createClass() {
+    public void createClass() {
         // Verificar que el proyecto actual esté establecido
         if (currentProject == null) {
             JOptionPane.showMessageDialog(null, "No hay un proyecto cargado. Cargue o cree un proyecto primero.");
-            return null;
         } else {
 
             // Solicitar el nombre de la clase al usuario
             String className = JOptionPane.showInputDialog("Introduce el nombre de la nueva clase (sin extensión):");
             if (className == null || className.trim().isEmpty()) {
                 JOptionPane.showMessageDialog(null, "El nombre de la clase no puede estar vacío.");
-                return null;
             }
 
             // Directorio donde se guardará la clase
@@ -237,8 +235,6 @@ public class DomainLogic {
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(null, "Error al crear el archivo de la clase: " + e.getMessage());
             }
-            currentClass = javaFile;
-            return currentClass;
         }
     }
 
@@ -269,14 +265,20 @@ public class DomainLogic {
     public void save() { // Este método se encarga de guardar los ficheros.
         try {
             try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(currentClass.getAbsolutePath()))) {
+                String[] text = editor.getText().split("\\n"); // Mover la división del texto fuera del bucle
+                System.out.println(editor.getLineCount());
                 for (int i = 0; i < editor.getLineCount(); i++) {
-                    String[] text = editor.getText().split("\\n");
                     writer.write(text[i]);
                     writer.newLine();
                 }
-            } catch (Exception e) {logger.log(Level.SEVERE, "Error durante la operación de  escritura.", e);}
-        } catch (Exception e) {logger.log(Level.SEVERE, "Error durante la operación de guardado.", e);}
+            } catch (Exception e) {
+                logger.log(Level.SEVERE, "Error durante la operación de escritura.", e);
+            }
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error durante la operación de guardado.", e);
+        }
     }
+
     public void undo () { // Este método se encarga de deshacer los cambios en los ficheros.
         if (!undoStack.isEmpty()) {
             String previousText = undoStack.pop();

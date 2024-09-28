@@ -254,67 +254,140 @@ public class App implements ActionListener, ListSelectionListener, CaretListener
             jFrame.setTitle("Nombre Proyecto: " + currentProject.getName());
         }
         if (event.getActionCommand().equals("Crear Clase")) {
-            currentClass = dl.createClass();
-            if (currentClass != null) {
-                fileExplorer.loadProject(currentProject);
-                jFrame.setTitle(jFrame.getTitle() + " / Nombre clase: " + currentClass.getName());
+            dl.createClass();
+            if (currentClass != null && currentClass.getName().endsWith(".java")) {
+                dl.save();
+                currentClass = null;
+            }
+            fileExplorer.loadProject(currentProject);
+
+        }
+        if (event.getActionCommand().equals("Guardar")) {
+            if (currentProject != null) {
+                if (currentClass != null) {
+                    if (currentClass.getName().endsWith(".java")) {
+                        dl.save();
+                        JOptionPane.showMessageDialog(contentPane, "Cambios guardados correctamente.");
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(contentPane, "Error. No hay una clase cargada en el editor.");
+                }
+            } else {
+                JOptionPane.showMessageDialog(contentPane, "Debes crear o abrir un proyecto antes de intentar guardar un programa.");
             }
         }
-        if (event.getActionCommand().equals("Guardar")) {dl.save();}
-        if (event.getActionCommand().equals("Salir")) {System.exit(0);}
-        if (event.getActionCommand().equals("Deshacer")) {dl.undo();}
-        if (event.getActionCommand().equals("rehacer")) {dl.redo();}
-        if (event.getActionCommand().equals("Cortar")) {dl.cut();}
-        if (event.getActionCommand().equals("Copiar")) {dl.copy();}
-        if (event.getActionCommand().equals("Pegar")) {dl.paste();}
-        if (event.getActionCommand().equals("Borrar")) {dl.delete();}
-        if (event.getActionCommand().equals("Buscar")) {
-            JDialog d=new JDialog(jFrame);
-            d.setSize(300,100);
-            d.setLayout(new FlowLayout());
-            d.setVisible(true);
-            JLabel lab=new JLabel("Buscar: ");
-            tif=new JTextField(15);
-            JButton b=new JButton("Buscar siguiente");
-            b.addActionListener(this);
-            d.add(lab);
-            d.add(tif);
-            d.add(b);
-            fromIndex =0;
+        if (event.getActionCommand().equals("Salir")) {
+            System.exit(0);
         }
-        if (event.getActionCommand().equals("Buscar siguiente")) {fromIndex = dl.findNext(tif, fromIndex);}
+        if (event.getActionCommand().equals("Deshacer")) {
+            if (currentClass != null) {
+                dl.undo();
+            } else {
+                JOptionPane.showMessageDialog(contentPane, "Debes crear o cargar una clase.");
+            }
+        }
+        if (event.getActionCommand().equals("rehacer")) {
+            if (currentClass != null) {
+                dl.redo();
+            } else {
+                JOptionPane.showMessageDialog(contentPane, "Debes crear o cargar una clase.");
+            }
+        }
+        if (event.getActionCommand().equals("Cortar")) {
+            if (currentClass != null) {
+                dl.cut();
+            } else {
+                JOptionPane.showMessageDialog(contentPane, "Debes crear o cargar una clase.");
+            }
+        }
+        if (event.getActionCommand().equals("Copiar")) {
+            if (currentClass != null) {
+                dl.copy();
+            } else {
+                JOptionPane.showMessageDialog(contentPane, "Debes crear o cargar una clase.");
+            }
+        }
+        if (event.getActionCommand().equals("Pegar")) {
+            if (currentClass != null) {
+                dl.paste();
+            } else {
+                JOptionPane.showMessageDialog(contentPane, "Debes crear o cargar una clase.");
+            }
+        }
+        if (event.getActionCommand().equals("Borrar")) {
+            if (currentClass != null) {
+                dl.delete();
+            } else {
+                JOptionPane.showMessageDialog(contentPane, "Debes crear o cargar una clase.");
+            }
+        }
+        if (event.getActionCommand().equals("Buscar")) {
+            if (currentClass != null) {
+                JDialog d = new JDialog(jFrame);
+                d.setSize(300, 100);
+                d.setLayout(new FlowLayout());
+                d.setVisible(true);
+                JLabel lab = new JLabel("Buscar: ");
+                tif = new JTextField(15);
+                JButton b = new JButton("Buscar siguiente");
+                b.addActionListener(this);
+                d.add(lab);
+                d.add(tif);
+                d.add(b);
+                fromIndex = 0;
+            } else {
+                JOptionPane.showMessageDialog(contentPane, "Debes crear o cargar una clase.");
+            }
+        }
+        if (event.getActionCommand().equals("Buscar siguiente")) {
+            fromIndex = dl.findNext(tif, fromIndex);
+        }
         if (event.getActionCommand().equals("Remplazar")) {
-            JPanel panel = new JPanel(new BorderLayout(5, 5));
-            JPanel labels = new JPanel(new GridLayout(2, 1, 5, 5));
-            JPanel fields = new JPanel(new GridLayout(2, 1, 5, 5));
+            if (currentClass != null) {
+                JPanel panel = new JPanel(new BorderLayout(5, 5));
+                JPanel labels = new JPanel(new GridLayout(2, 1, 5, 5));
+                JPanel fields = new JPanel(new GridLayout(2, 1, 5, 5));
 
-            JTextField findField = new JTextField(20);
-            JTextField replaceField = new JTextField(20);
+                JTextField findField = new JTextField(20);
+                JTextField replaceField = new JTextField(20);
 
-            labels.add(new JLabel("Buscar: "));
-            labels.add(new JLabel("Reemplazar: "));
-            fields.add(findField);
-            fields.add(replaceField);
+                labels.add(new JLabel("Buscar: "));
+                labels.add(new JLabel("Reemplazar: "));
+                fields.add(findField);
+                fields.add(replaceField);
 
-            panel.add(labels, BorderLayout.WEST);
-            panel.add(fields, BorderLayout.CENTER);
+                panel.add(labels, BorderLayout.WEST);
+                panel.add(fields, BorderLayout.CENTER);
 
-            int result = JOptionPane.showConfirmDialog(contentPane, panel, "", JOptionPane.OK_CANCEL_OPTION);
+                int result = JOptionPane.showConfirmDialog(contentPane, panel, "", JOptionPane.OK_CANCEL_OPTION);
 
-            dl.replace(result, findField, replaceField);
+                dl.replace(result, findField, replaceField);
+            } else {
+                JOptionPane.showMessageDialog(contentPane, "Debes crear o cargar una clase.");
+            }
         }
 
         if (event.getActionCommand().equals("Ir a")) {
-            JPanel panel = new JPanel(new BorderLayout(5, 5));
-            JLabel label = new JLabel("Ir a linea: ");
-            panel.add(label, BorderLayout.NORTH);
-            JTextField findField = new JTextField(15);
-            panel.add(findField, BorderLayout.CENTER);
-            int result = JOptionPane.showConfirmDialog(jFrame, panel, "", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-            dl.goToLine(result, findField);
+            if (currentClass != null) {
+                JPanel panel = new JPanel(new BorderLayout(5, 5));
+                JLabel label = new JLabel("Ir a linea: ");
+                panel.add(label, BorderLayout.NORTH);
+                JTextField findField = new JTextField(15);
+                panel.add(findField, BorderLayout.CENTER);
+                int result = JOptionPane.showConfirmDialog(jFrame, panel, "", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                dl.goToLine(result, findField);
+            } else {JOptionPane.showMessageDialog(contentPane, "Debes crear o cargar una clase.");}
         }
-        if (event.getActionCommand().equals("Seleccionar Todo")) {editor.selectAll();}
-        if (event.getActionCommand().equals("Propiedades de Fichero")) {dl.fileProperties();}
+        if (event.getActionCommand().equals("Seleccionar Todo")) {
+            if (currentClass != null) {
+                editor.selectAll();
+            } else {JOptionPane.showMessageDialog(contentPane, "Debes crear o cargar una clase.");}
+        }
+        if (event.getActionCommand().equals("Propiedades de Fichero")) {
+            if (currentClass != null) {
+                dl.fileProperties();
+            } else {JOptionPane.showMessageDialog(contentPane, "Debes crear o cargar una clase.");}
+        }
         if (event.getActionCommand().equals("Aumentar Tamaño")) {dl.changeFontSize(editor.getFont().getSize() + 2);}
         if (event.getActionCommand().equals("Reducir Tamaño")) {dl.changeFontSize(editor.getFont().getSize() - 2);}
         if (event.getActionCommand().equals("Ejecutar Programa")) {
