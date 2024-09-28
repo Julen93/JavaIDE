@@ -10,13 +10,12 @@ import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
+import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.event.CaretEvent;
-import javax.swing.event.CaretListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.event.*;
+
 
 /**
  * This is an Integrated Development Environment for the Java programming language.
@@ -24,7 +23,7 @@ import javax.swing.event.ListSelectionListener;
  */
 
 // Clase App: Contiene la interfaz principal del IDE.
-public class App implements ActionListener, ListSelectionListener, CaretListener, KeyListener {
+public class App implements ActionListener, ListSelectionListener, CaretListener, KeyListener, TreeSelectionListener {
 
 
     // Campos de la clase App
@@ -35,7 +34,10 @@ public class App implements ActionListener, ListSelectionListener, CaretListener
     JPanel contentPane;
     private int fromIndex;
     private JTextField tif;
+    private File currentClass;
+    private File currentProject;
     RSyntaxTextArea editor, terminal;
+    private final FileExplorer fileExplorer;
     private static final Logger logger = Logger.getLogger(App.class.getName());
 
 
@@ -69,7 +71,7 @@ public class App implements ActionListener, ListSelectionListener, CaretListener
 
         // Configurar JPanel que va a contener el editor de texto.
         contentPane = new JPanel(new BorderLayout());
-        contentPane.setPreferredSize(new Dimension(800, 500));
+        contentPane.setPreferredSize(new Dimension(800, 650)); //PARA CAMBIAR EL TAMAÑO DE LA TERMINAL!!!!!!
         contentPane.add(new RTextScrollPane(editor));
 
         // Configurar terminal
@@ -86,17 +88,27 @@ public class App implements ActionListener, ListSelectionListener, CaretListener
         terminal.append("\n");
         terminal.setCaretPosition(terminal.getDocument().getLength());
         terminal.setPopupMenu(null);
+        terminal.setText("¡Bienvenido al auténtico IDE para programar en Java!\nEmpecemos por crear un proyecto nuevo o abrir uno ya creado.");
 
         // Crear un JScrollPane (usando RTextScrollPane) para la terminal
         RTextScrollPane terminalScrollPane = new RTextScrollPane(terminal);
         terminalScrollPane.setLineNumbersEnabled(false);
 
+        // Instancia de FileExplorer con el directorio raíz deseado
+        fileExplorer = new FileExplorer();
+        fileExplorer.setPreferredSize(new Dimension(200, 550));
+        fileExplorer.getFileTree().addTreeSelectionListener(this);
+
         // Crear JSplitPane
-        JSplitPane jSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, contentPane, terminalScrollPane);
+        JSplitPane jSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, fileExplorer, contentPane);
+        JSplitPane jSplitPane2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, jSplitPane, terminalScrollPane);
+        jSplitPane.setDividerLocation(0.75);
+        jSplitPane2.setDividerLocation(0.25);
+
 
         // Configurar JMenuBar
         JMenuBar menuBar = new JMenuBar();
-        String[] fileMenuItemName = {"Nuevo", "Abrir", "Guardar", "Guardar Como", "Salir"};
+        String[] fileMenuItemName = {"Nuevo Proyecto", "Abrir Proyecto", "Crear Clase", "Guardar", "Salir"};
         String[] editMenuItemName = {"Deshacer", "Rehacer", "Cortar", "Copiar", "Pegar", "Borrar", "Buscar", "Remplazar", "Ir a", "Seleccionar Todo", "Propiedades de Fichero"};
         String[] fontMenuItemName = {"Aumentar Tamaño", "Reducir Tamaño"};
         String[] toolsMenuItemName = {"Ejecutar Programa"};
@@ -113,6 +125,11 @@ public class App implements ActionListener, ListSelectionListener, CaretListener
         menuBar.add(edit);
         menuBar.add(font);
         menuBar.add(tools);
+
+        JLabel messageLabel = new JLabel("Pulsa la tecla F5 para refrescar el explorador del proyecto.  ");
+        menuBar.add(Box.createHorizontalGlue());
+        menuBar.add(messageLabel);
+
         JMenuItem[] fileMenuItem = new JMenuItem[fileMenuItemName.length];
         file.setMnemonic(KeyEvent.VK_F);
         JMenuItem[] editMenuItem = new JMenuItem[editMenuItemName.length];
@@ -159,20 +176,34 @@ public class App implements ActionListener, ListSelectionListener, CaretListener
         status.setFont(new Font("Verdana", Font.PLAIN, 14));
 
         // Inicializar DomainLogic
-        dl = new DomainLogic(jFrame, contentPane, editor, terminal, status);
-
+        dl = new DomainLogic(contentPane, editor, terminal, status);
+        dl.printFile(new File("C:/Program Files (x86)/JavaIDE/ascii-art.txt"));
         // Crear botón de OK
         ok = new JButton("OK");
         ok.addActionListener(this);
 
+        String userHome = System.getProperty("user.home");
+        File javaIDEProjectsDir = new File(userHome, "JavaIDEProjects");
+        if (!javaIDEProjectsDir.exists()) {
+            if (javaIDEProjectsDir.mkdir()) {
+                System.out.println("Directorio 'JavaIDEProjects' creado en: " + javaIDEProjectsDir.getAbsolutePath());
+            } else {
+                System.out.println("No se pudo crear el directorio 'JavaIDEProjects'.");
+            }
+        } else {
+            System.out.println("El directorio 'JavaIDEProjects' ya existe en: " + javaIDEProjectsDir.getAbsolutePath());
+        }
+
         // Configurar JFrame
         jFrame.setJMenuBar(menuBar);
-        jSplitPane.setDividerLocation(0.75);
-        jFrame.add(jSplitPane, BorderLayout.CENTER);
+        jFrame.add(jSplitPane2, BorderLayout.CENTER);
         jFrame.add(status, BorderLayout.SOUTH);
         jFrame.pack();
         jFrame.setLocationRelativeTo(null);
-        jFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);  // Maximizar el JFrame
+        jFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);  // Maximizar el JFrame \\
+        ImageIcon image_icon = new ImageIcon("C:/Program Files (x86)/JavaIDE/LogoUNED.jpg");
+        Image image=image_icon.getImage();
+        jFrame.setIconImage(image);
         jFrame.setVisible(true);
     }
 
@@ -180,13 +211,44 @@ public class App implements ActionListener, ListSelectionListener, CaretListener
     // Métodos de la clase App
     @Override
     public void actionPerformed(ActionEvent event) { // Método encargado de recibir y manejar los eventos de acción.
-        if (event.getActionCommand().equals("Nuevo")) {
-            jFrame.setVisible(false);
-            new App();
+        if (event.getActionCommand().equals("Nuevo Proyecto")) {
+            JPanel panel = new JPanel(new BorderLayout(5, 5));
+            JPanel labels = new JPanel(new GridLayout(3, 1, 5, 5));
+            JPanel fields = new JPanel(new GridLayout(3, 1, 5, 5));
+
+            JTextField Project = new JTextField(20);
+            JTextField Org = new JTextField(20);
+            JTextField App = new JTextField(20);
+
+            labels.add(new JLabel("Proyecto: "));
+            labels.add(new JLabel("Organización: "));
+            labels.add(new JLabel("Aplicación: "));
+            fields.add(Project);
+            fields.add(Org);
+            fields.add(App);
+
+            panel.add(labels, BorderLayout.WEST);
+            panel.add(fields, BorderLayout.CENTER);
+
+            JOptionPane.showConfirmDialog(contentPane, panel, "", JOptionPane.OK_CANCEL_OPTION);
+
+            currentProject = dl.createProject(Project, Org, App);
+            fileExplorer.loadProject(currentProject);
+            jFrame.setTitle("Nombre Proyecto: " + currentProject.getName());
         }
-        if (event.getActionCommand().equals("Abrir")) {dl.open();}
+        if (event.getActionCommand().equals("Abrir Proyecto")) {
+            currentProject = dl.openProject();
+            fileExplorer.loadProject(currentProject);
+            jFrame.setTitle("Nombre Proyecto: " + currentProject.getName());
+        }
+        if (event.getActionCommand().equals("Crear Clase")) {
+            currentClass = dl.createClass();
+            if (currentClass != null) {
+                fileExplorer.loadProject(currentProject);
+                jFrame.setTitle(jFrame.getTitle() + " / Nombre clase: " + currentClass.getName());
+            }
+        }
         if (event.getActionCommand().equals("Guardar")) {dl.save();}
-        if (event.getActionCommand().equals("Guardar Como")) {dl.saveAs();}
         if (event.getActionCommand().equals("Salir")) {System.exit(0);}
         if (event.getActionCommand().equals("Deshacer")) {dl.undo();}
         if (event.getActionCommand().equals("rehacer")) {dl.redo();}
@@ -252,14 +314,36 @@ public class App implements ActionListener, ListSelectionListener, CaretListener
     public void keyPressed (KeyEvent event) { // Método encargado de ejecutarse cuando una tecla es presionada.
         if (event.getKeyCode() == KeyEvent.VK_BACK_SPACE || event.getKeyCode() == KeyEvent.VK_DELETE)
             dl.keyPressed();
+        if (event.getKeyCode() == KeyEvent.VK_F5) {
+            System.out.println("Tecla F5 presionada");
+            if (currentProject != null)
+                fileExplorer.loadProject(currentProject);
+        }
     }
     @Override
     public void keyReleased (KeyEvent event){}
     @Override
-    public void caretUpdate (CaretEvent event){dl.caretUpdate();} // Método encargado de manejar eventos relacionados con el cursor.
+    public void caretUpdate (CaretEvent event){
+        if (currentClass != null)
+            dl.caretUpdate();
+    }
     @Override
     public void valueChanged (ListSelectionEvent event) {}
-
+    @Override
+    public void valueChanged(TreeSelectionEvent e) {
+        File file = fileExplorer.getFile();
+        if (file != null && file.isFile()) {
+            jFrame.setTitle("Nombre Proyecto: " + currentProject.getName() + " / Nombre Fichero: " + file.getName());
+            currentClass = file;
+            dl.valueChanged(currentClass);
+        } else {
+            jFrame.setTitle("");
+            editor.setText("");
+            terminal.setText("");
+            System.out.println("Carpeta seleccionada: " + (currentClass != null ? currentClass.getAbsolutePath() : "No file selected"));
+            currentClass = null;
+        }
+    }
     public static void main (String...args){ // Método principal de la clase.
         Runtime rt = Runtime.getRuntime();
         Shutdown sd = new Shutdown();
